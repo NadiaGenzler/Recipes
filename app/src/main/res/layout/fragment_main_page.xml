@@ -15,20 +15,41 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-
-            <com.makeramen.roundedimageview.RoundedImageView
-                android:id="@+id/imageView"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="264dp"
-                android:src="@mipmap/breakfast2"
-                tools:src="@mipmap/breakfast2"
-                app:riv_corner_radius="10dip"
-                app:riv_mutate_background="true"
-                app:riv_border_width="1dip"
-                app:riv_border_color="@color/cardview_light_background"
-                android:layout_margin="10dp"
+                android:layout_height="270dp">
 
-                 />
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/randomMealImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="264dp"
+                    android:src="@mipmap/breakfast2"
+                    tools:src="@mipmap/breakfast2"
+                    app:riv_corner_radius="10dip"
+                    app:riv_mutate_background="true"
+                    app:riv_border_width="1dip"
+                    app:riv_border_color="@color/cardview_light_background"
+                    android:layout_margin="10dp"
+
+                    />
+                <TextView
+                    android:id="@+id/randomMeal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:layout_gravity="bottom"
+                    android:layout_marginLeft="10dp"
+                    android:layout_alignBottom="@id/randomMealImage"
+                    android:paddingTop="30dp"
+
+                    android:text="Random meal Name"
+
+                    android:textSize="20dp"
+                    android:textStyle="bold"
+                    android:textColor="@color/cardview_dark_background"
+                    />
+            </RelativeLayout>
+
 
             <LinearLayout
                 android:layout_width="match_parent"

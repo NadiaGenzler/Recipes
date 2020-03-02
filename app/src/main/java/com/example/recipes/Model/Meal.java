@@ -16,4 +16,10 @@ public class Meal implements Serializable {
    public String strMeasure11,strMeasure12,strMeasure13,strMeasure14,strMeasure15,strMeasure16,strMeasure17,strMeasure18,strMeasure19,strMeasure20;
 
    public Meal(){}
+   public Meal(String idMeal,String strMeal,String strMealThumb){
+      this.idMeal=idMeal;
+      this.strMeal=strMeal;
+      this.strMealThumb=strMealThumb;
+
+   }
 }
