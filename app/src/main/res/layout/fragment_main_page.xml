@@ -17,37 +17,37 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="270dp">
+                android:layout_height="327dp">
 
                 <com.makeramen.roundedimageview.RoundedImageView
                     android:id="@+id/randomMealImage"
                     android:layout_width="match_parent"
-                    android:layout_height="264dp"
-                    android:src="@mipmap/breakfast2"
-                    tools:src="@mipmap/breakfast2"
-                    app:riv_corner_radius="10dip"
-                    app:riv_mutate_background="true"
-                    app:riv_border_width="1dip"
-                    app:riv_border_color="@color/cardview_light_background"
-                    android:layout_margin="10dp"
+                    android:layout_height="320dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="10dp"
 
-                    />
+
+                    android:scaleType="centerCrop"
+
+                    app:riv_border_color="@color/cardview_light_background"
+                    app:riv_border_width="1dip"
+                    app:riv_corner_radius="10dip"
+                    app:riv_mutate_background="true" />
+
                 <TextView
                     android:id="@+id/randomMeal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:layout_gravity="bottom"
-                    android:layout_marginLeft="10dp"
                     android:layout_alignBottom="@id/randomMealImage"
-                    android:paddingTop="30dp"
+                    android:layout_gravity="bottom"
+                    android:layout_marginStart="25dp"
+                    android:layout_marginBottom="56dp"
 
-                    android:text="Random meal Name"
-
-                    android:textSize="20dp"
-                    android:textStyle="bold"
-                    android:textColor="@color/cardview_dark_background"
-                    />
+                    android:text="Random Meal"
+                    android:textColor="@color/cardview_light_background"
+                    android:textSize="25dp"
+                    android:textStyle="bold" />
             </RelativeLayout>
 
 
@@ -89,7 +89,8 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:id="@+id/categoryPics0"/>
+                    android:id="@+id/categoryPics0"
+                    />
 
             </LinearLayout>
 
@@ -174,7 +175,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="end"
-                            android:text="View All"
+                            android:text="@string/view_all"
                             android:textAlignment="viewEnd"
                             android:textSize="18dp"
                             android:textColor="@color/design_default_color_primary_dark"/>

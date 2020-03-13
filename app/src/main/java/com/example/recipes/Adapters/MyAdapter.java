@@ -20,18 +20,21 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private List<Meal> listOfMeals;
     private Context context;
     private OnMealListener onMealListener;
+    private int cardLayout;
 
-    public MyAdapter(List<Meal> listOfStrings, Context context,OnMealListener onMealListener) {
+    public MyAdapter(List<Meal> listOfStrings, Context context,OnMealListener onMealListener,int cardLayout) {
         this.listOfMeals = listOfStrings;
         this.context = context;
         this.onMealListener=onMealListener;
+        this.cardLayout=cardLayout;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        View view= LayoutInflater.from(context).inflate(R.layout.image_description_cell,parent,false);
+
+        View view= LayoutInflater.from(context).inflate(cardLayout,parent,false);
 
         return new MyAdapter.ViewHolder(view,onMealListener);
     }

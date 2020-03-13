@@ -6,53 +6,58 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.example.recipes.Fragments.MealFragmentArgs;
+import com.example.recipes.MainActivity;
+import com.example.recipes.Model.Meal;
+import com.example.recipes.Model.MealsObj;
 import com.example.recipes.R;
+import com.example.recipes.Utils.DatabaseHelper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.squareup.picasso.Picasso;
+
+import java.io.IOException;
+import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+import static android.content.ContentValues.TAG;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MealFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MealFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class MealFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
+    MealsObj meals;
+    Meal currentMeal;
+    TextView mealName, instructions;
+    ImageView mealImage;
+    ImageButton toVideo;
+    private TableLayout ingredientsTable;
+    private DatabaseHelper databaseHelper;
     private OnFragmentInteractionListener mListener;
 
     public MealFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MealFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static MealFragment newInstance(String param1, String param2) {
         MealFragment fragment = new MealFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -60,23 +65,125 @@ public class MealFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         View myView=inflater.inflate(R.layout.fragment_meal, container, false);
-        TextView tv=myView.findViewById(R.id.mealsFragment);
+        String mealId= MealFragmentArgs.fromBundle(getArguments()).getMealId();
+        ingredientsTable=myView.findViewById(R.id.ingredientsTable);
 
-        String id= MealFragmentArgs.fromBundle(getArguments()).getMealId();
-        tv.setText(id);
+        getTheMeals(this.getContext(),myView,mealId);
 
 
         return myView;
+    }
+
+    public void getTheMeals(final Context context,final View myView,final String mealId){
+
+        meals = new MealsObj();
+        String url = "https://www.themealdb.com/api/json/v1/1/lookup.php?i="+mealId;
+        final OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url(url).build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String serverResponse = response.body().string();
+                if (response.isSuccessful()) {
+
+                    GsonBuilder gsonBuilder = new GsonBuilder();
+                    Gson gson = gsonBuilder.create();
+
+                    meals = gson.fromJson(serverResponse, MealsObj.class);
+                    currentMeal=meals.meals.get(0);
+
+                    ((MainActivity) getContext()).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            mealName=myView.findViewById(R.id.currentMealName);
+                            mealName.setText(currentMeal.strMeal);
+                            mealImage=myView.findViewById(R.id.currentMealImage);
+                            Picasso.with(context).load(currentMeal.strMealThumb).into(mealImage);
+
+                            videoInstructions(myView);
+
+                            currentMeal.addIngredients();
+                            currentMeal.addMeasurs();
+                            for (int i = 0; i < 20; i++) {
+                                if(!(currentMeal.ingredientsArr[i].trim()).isEmpty()||!(currentMeal.measuresArr[i].trim()).isEmpty()){
+                                    showIngredientsAndMeasures(context,i);
+                                }else {
+                                    break;
+                                }
+                            }
+
+                            instructions=myView.findViewById(R.id.instructions);
+                            instructions.setText(currentMeal.strInstructions);
+
+                        }
+                    });
+
+                {
+                        //db.insertData(categoryName, meal.idMeal, meal.strMeal, meal.strMealThumb);
+                    }
+                }
+            }
+        });
+    }
+
+    // Load the ingredients and measures to the view
+    public void showIngredientsAndMeasures(final Context context,final int i){
+        TableRow row=new TableRow(context);
+        TableLayout.LayoutParams TablelayoutParams=new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,TableLayout.LayoutParams.MATCH_PARENT);
+        row.setLayoutParams(TablelayoutParams);
+        row.setPadding(0,0,0,5);
+
+        //Add Ingredients to table
+        TextView ingredient=new TextView(context);
+        ingredient.setText(currentMeal.ingredientsArr[i]);
+        ingredient.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,TableRow.LayoutParams.WRAP_CONTENT,0.5f));
+        ingredient.setTextSize(22);
+        row.addView(ingredient,0);
+        //Add Measures to the table
+        TextView measure=new TextView(context);
+        measure.setText(currentMeal.measuresArr[i]);
+        measure.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,TableRow.LayoutParams.WRAP_CONTENT,0.5f));
+        measure.setTextColor(getResources().getColor(R.color.black));
+        measure.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        measure.setTextSize(20);
+        row.addView(measure,1);
+
+        ingredientsTable.addView(row);
+
+        //Add separation line
+        View line=new View(context);
+        int dp1= (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,1,context.getResources().getDisplayMetrics());
+        line.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, dp1));
+        line.setBackgroundColor(getResources().getColor(R.color.gray));
+        ingredientsTable.addView(line);
+    }
+
+    // Load the video instructions if exists
+    public void videoInstructions(View myView){
+        final String url=currentMeal.strYoutube;
+        toVideo=myView.findViewById(R.id.videoImageBtn);
+        if (!url.isEmpty()){
+            toVideo.setVisibility(View.VISIBLE);
+            toVideo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    WebView webView=new WebView(MealFragment.this.getContext());
+                    webView.loadUrl(url);
+                }
+            });
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -103,16 +210,6 @@ public class MealFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);

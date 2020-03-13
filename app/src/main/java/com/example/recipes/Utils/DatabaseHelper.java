@@ -53,18 +53,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getAllMeals()
     {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from " + TABLE_NAME, null);
-        return res;
+        Cursor response = db.rawQuery("select * from " + TABLE_NAME, null);
+        return response;
     }
 
 
     public Cursor getMealsFromCategory(String category)
     {
         SQLiteDatabase db = this.getWritableDatabase();
-        Cursor res = db.rawQuery("select * from " + TABLE_NAME +" where CATEGORY = '"+category+"'" , null);
-        return res;
+        Cursor response = db.rawQuery("select * from " + TABLE_NAME +" where CATEGORY = '"+category+"'" , null);
+        return response;
     }
 
+//    public Cursor getMeal(String mealId){
+//        SQLiteDatabase db=this.getWritableDatabase();
+//        Cursor response=db.rawQuery("select * from"+TABLE_NAME+"where MEAL_ID ='"+mealId+"'",null);
+//        return response;
+//    }
 
 //    public Integer deleteData(String name)
 //    {

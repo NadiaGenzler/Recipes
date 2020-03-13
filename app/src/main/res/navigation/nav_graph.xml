@@ -13,12 +13,23 @@
         <action
             android:id="@+id/action_mainPage_to_meal"
             app:destination="@+id/meal" />
+        <action
+            android:id="@+id/action_mainPage_to_recipesCategory"
+            app:destination="@id/recipesCategory" />
     </fragment>
     <fragment
         android:id="@+id/recipesCategory"
         android:name="com.example.recipes.Fragments.RecipesCategory"
         android:label="fragment_recipes_category"
-        tools:layout="@layout/fragment_recipes_category" />
+        tools:layout="@layout/fragment_recipes_category" >
+        <argument
+            android:name="ctagoryName"
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_recipesCategory_to_meal"
+            app:destination="@id/meal" />
+    </fragment>
     <fragment
         android:id="@+id/meal"
         android:name="com.example.recipes.Fragments.MealFragment"

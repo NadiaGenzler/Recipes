@@ -47,6 +47,7 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     Meal randomMeal;
     TextView randomMealTV;
     ImageView randomMealImage;
+    String randomMealId;
 
 
     String [] categories={"Pasta","Breakfast","Beef"};
@@ -58,7 +59,7 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
 
     MyAdapter myAdapter;
     MealsObj meals;
-    List<List<Meal>> allmeals_arr;
+
     List<Meal> meals0;
     List<Meal> meals1;
     List<Meal> meals2;
@@ -67,14 +68,6 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     int count;
 
     DatabaseHelper db;
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private OnFragmentInteractionListener mListener;
 
@@ -83,20 +76,9 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MainPage.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static MainPage newInstance(String param1, String param2) {
+    public static MainPage newInstance() {
         MainPage fragment = new MainPage();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -104,18 +86,25 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View myView=inflater.inflate(R.layout.fragment_main_page, container, false);
+        final View myView=inflater.inflate(R.layout.fragment_main_page, container, false);
+        randomMealTV=myView.findViewById(R.id.randomMeal);
+        randomMealImage=myView.findViewById(R.id.randomMealImage);
         getRandomMeal(this.getContext(),myView);
+
+        randomMealImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            NavDirections action = MainPageDirections.actionMainPageToMeal(randomMealId);
+            Navigation.findNavController(v).navigate(action);
+            }
+        });
+
         db=new DatabaseHelper(this.getContext());
 
         count=0;
@@ -126,59 +115,9 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
         meals1=new ArrayList<>();
         meals2=new ArrayList<>();
 
-
         myAdapters=new ArrayList<>();
 
-
-        for (int i = 0; i < categories.length; i++) {
-            String categoryNameIdStr="categoryName"+i;
-           // String categoryButtonIdStr="categoryButton"+i;
-
-            Cursor cursor=db.getMealsFromCategory(categories[i]);
-            cursor.moveToFirst();
-            Log.e(TAG, cursor.getCount()+"" );
-            switch (i){
-                case 0:
-                    while (cursor.moveToNext()){
-                        meals0.add(new Meal(cursor.getString(2),cursor.getString(3),cursor.getString(4)));
-                    }
-                    myAdapter=new MyAdapter(meals0,this.getContext(),MainPage.this);
-                    recyclerView0.setLayoutManager(new LinearLayoutManager(this.getContext(), RecyclerView.HORIZONTAL, false));
-                    recyclerView0.setAdapter(myAdapter);
-                    break;
-                case 1:
-                    while (cursor.moveToNext()){
-                        meals1.add(new Meal(cursor.getString(2),cursor.getString(3),cursor.getString(4)));
-                    }
-                    myAdapter=new MyAdapter(meals1,this.getContext(),MainPage.this);
-                    recyclerView1.setLayoutManager(new LinearLayoutManager(this.getContext(), RecyclerView.HORIZONTAL, false));
-                    recyclerView1.setAdapter(myAdapter);
-                    break;
-                case 2:
-                    while (cursor.moveToNext()){
-                        meals2.add(new Meal(cursor.getString(2),cursor.getString(3),cursor.getString(4)));
-                    }
-                    myAdapter=new MyAdapter(meals2,this.getContext(),MainPage.this);
-                    recyclerView2.setLayoutManager(new LinearLayoutManager(this.getContext(), RecyclerView.HORIZONTAL, false));
-                    recyclerView2.setAdapter(myAdapter);
-                    break;
-            }
-
-
-            categoryNameTV=myView.findViewById(getResources().getIdentifier(categoryNameIdStr,"id",this.getContext().getPackageName()));
-            categoryNameTV.setText(categories[i]);
-
-        }
-
-
-//        List<Meal> sevenMeals=new ArrayList<>();
-//        for (int i = 0; i < 7; i++) {
-//            sevenMeals.add(meals.meals.get(i));
-//        }
-//
-//
-
-
+        showTheMealsInRecyclerViews(myView);
 
         return myView;
     }
@@ -199,12 +138,62 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
         recyclerView2.setClickable(true);
     }
 
+    public void showTheMealsInRecyclerViews(View myView){
+        for (int i = 0; i < categories.length; i++) {
+            String categoryNameIdStr="categoryName"+i;
+            String categoryButtonIdStr="categoryButton"+i;
 
+            Cursor cursor=db.getMealsFromCategory(categories[i]);
 
+            Log.e(TAG, cursor.getCount()+"" );
+            switch (i){
+                case 0:
+                    cursor.moveToFirst();
+                    meals0.add(new Meal(cursor.getString(2),cursor.getString(3),cursor.getString(4)));
+                    while (cursor.moveToNext()){
+                        meals0.add(new Meal(cursor.getString(2),cursor.getString(3),cursor.getString(4)));
+                    }
+                    myAdapter=new MyAdapter(meals0,this.getContext(),MainPage.this,R.layout.cell_main_page);
+                    recyclerView0.setLayoutManager(new LinearLayoutManager(this.getContext(), RecyclerView.HORIZONTAL, false));
+                    recyclerView0.setAdapter(myAdapter);
+                    break;
+                case 1:
+                    while (cursor.moveToNext()){
+                        meals1.add(new Meal(cursor.getString(2),cursor.getString(3),cursor.getString(4)));
+                    }
+                    myAdapter=new MyAdapter(meals1,this.getContext(),MainPage.this,R.layout.cell_main_page);
+                    recyclerView1.setLayoutManager(new LinearLayoutManager(this.getContext(), RecyclerView.HORIZONTAL, false));
+                    recyclerView1.setAdapter(myAdapter);
+                    break;
+                case 2:
+                    while (cursor.moveToNext()){
+                        meals2.add(new Meal(cursor.getString(2),cursor.getString(3),cursor.getString(4)));
+                    }
+                    myAdapter=new MyAdapter(meals2,this.getContext(),MainPage.this,R.layout.cell_main_page);
+                    recyclerView2.setLayoutManager(new LinearLayoutManager(this.getContext(), RecyclerView.HORIZONTAL, false));
+                    recyclerView2.setAdapter(myAdapter);
+                    break;
+            }
 
+//            List<Meal> sevenMeals=new ArrayList<>();
+//            for (int i = 0; i < 7; i++) {
+//                sevenMeals.add(meals.meals.get(i));
+//            }
+            categoryNameTV=myView.findViewById(getResources().getIdentifier(categoryNameIdStr,"id",this.getContext().getPackageName()));
+            categoryNameTV.setText(categories[i]);
 
+            final int finalI = i;
+            myView.findViewById(getResources().getIdentifier(categoryButtonIdStr,"id",this.getContext().getPackageName()))
+                    .setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            NavDirections action=MainPageDirections.actionMainPageToRecipesCategory(categories[finalI]);
+                            Navigation.findNavController(v).navigate(action);
+                        }
+                    });
+        }
 
-
+    }
 
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -249,110 +238,23 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
 
     @Override
     public void onMealClick(View v,String mealId,int position) {
-        Log.d(TAG, "onMealClick: "+position);
-        Log.d(TAG, "onMealClick: "+mealId);
-
         NavDirections action = MainPageDirections.actionMainPageToMeal(mealId);
-
         Navigation.findNavController(v).navigate(action);
     }
 
 
-
-//    public void getTheList(final Context context , String url){
-//
-//        meals = new MealsObj();
-//
-//        final OkHttpClient client = new OkHttpClient();
-//        Request request = new Request.Builder().url(url).build();
-//
-//        client.newCall(request).enqueue(new Callback() {
-//            @Override
-//            public void onFailure(Call call, IOException e) {
-//            }
-//
-//            @Override
-//            public void onResponse(Call call, Response response) throws IOException {
-//                String serverResponse = response.body().string();
-//                if (response.isSuccessful()) {
-//
-//                    GsonBuilder gsonBuilder = new GsonBuilder();
-//                    Gson gson = gsonBuilder.create();
-//
-//                    //meals = gson.fromJson(serverResponse, new TypeToken<ArrayList<Meal>>(){}.getType());
-//                    meals = gson.fromJson(serverResponse, MealsObj.class);
-//
-//
-//                    List<Meal> sevenMeals=new ArrayList<>();
-//                    for (int i = 0; i < 7; i++) {
-//                        sevenMeals.add(meals.meals.get(i));
-//                    }
-//
-//                    myAdapter=new MyAdapter(sevenMeals,context,MainPage.this);
-//                    myAdapters.add(count,myAdapter);
-//
-//
-//                   count++;
-//
-//                    ((MainActivity) context).runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//
-////                            switch (count){
-////                                case 0:
-////                                    for (Meal meal:meals.meals) {
-////                                        meals0.add(meal);
-////                                    }
-////                                    allmeals_arr.add(meals0);
-////                                    break;
-////                                case 1:
-////                                    for (Meal meal:meals.meals) {
-////                                        meals1.add(meal);
-////                                    }
-////                                    allmeals_arr.add(meals1);
-////                                    break;
-////                                case 2:
-////                                    for (Meal meal:meals.meals) {
-////                                        meals2.add(meal);
-////                                    }
-////                                    allmeals_arr.add(meals2);
-////                                    break;
-////                            }
-////
-////                            myAdapter.notifyDataSetChanged();
-//
-//                        if (count==3){
-//                            recyclerView0.setLayoutManager(new LinearLayoutManager(context,RecyclerView.HORIZONTAL,false));
-//                            recyclerView0.setAdapter(myAdapters.get(0));
-//
-//                            recyclerView1.setLayoutManager(new LinearLayoutManager(context,RecyclerView.HORIZONTAL,false));
-//                            recyclerView1.setAdapter(myAdapters.get(1));
-//
-//                            recyclerView2.setLayoutManager(new LinearLayoutManager(context,RecyclerView.HORIZONTAL,false));
-//                            recyclerView2.setAdapter(myAdapters.get(2));
-//                        };
-//
-//                        }
-//                    });
-//
-//
-//
-//                }
-//            }
-//        });
-//
-//
-//    }
 
     public void getRandomMeal(final Context context,final View myView){
         String url="https://www.themealdb.com/api/json/v1/1/random.php";
         final OkHttpClient client=new OkHttpClient();
         Request request=new Request.Builder().url(url).build();
 
+
         client.newCall(request).enqueue(new Callback() {
+
             @Override
             public void onFailure(Call call, IOException e) {
-
+                Log.e(TAG, e.toString() );
             }
 
             @Override
@@ -369,9 +271,8 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
                         @Override
                         public void run() {
 
-                            randomMealTV=myView.findViewById(R.id.randomMeal);
+                            randomMealId=randomMeal.idMeal;
                             randomMealTV.setText(randomMeal.strMeal);
-                            randomMealImage=myView.findViewById(R.id.randomMealImage);
                             Picasso.with(context).load(randomMeal.strMealThumb).into(randomMealImage);
 
                         }

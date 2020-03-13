@@ -11,6 +11,8 @@
 
     </string-array>
     <string name="title_activity_splash">SplashActivity</string>
+    <string name="random_meal_name">Random meal Name</string>
+    <string name="view_all">View All</string>
 
 
 </resources>
