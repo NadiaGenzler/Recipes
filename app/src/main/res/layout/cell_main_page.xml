@@ -17,7 +17,7 @@
             android:layout_height="150dp"
             android:layout_marginBottom="5dp"
             android:id="@+id/mealImg"
-            app:riv_corner_radius="10dip"
+            app:riv_corner_radius="10dp"
             app:riv_mutate_background="true"
 
             />

@@ -14,21 +14,26 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.recipes.Adapters.MyAdapter;
 import com.example.recipes.Model.Meal;
 import com.example.recipes.R;
 import com.example.recipes.Utils.DatabaseHelper;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 
 
 public class RecipesCategory extends Fragment implements MyAdapter.OnMealListener {
     DatabaseHelper databaseHelper;
-
-    TextView textViewCategory;
+    TextView categoryName, mealsCount;
+    HashMap<String,String> categoryPics;
     RecyclerView recyclerView;
     MyAdapter myAdapter;
     List<Meal> meals;
@@ -38,7 +43,6 @@ public class RecipesCategory extends Fragment implements MyAdapter.OnMealListene
     public RecipesCategory() {
         // Required empty public constructor
     }
-
 
     public static RecipesCategory newInstance(String param1, String param2) {
         RecipesCategory fragment = new RecipesCategory();
@@ -56,17 +60,24 @@ public class RecipesCategory extends Fragment implements MyAdapter.OnMealListene
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View myView=inflater.inflate(R.layout.fragment_recipes_category, container, false);
+        String currentCategory=RecipesCategoryArgs.fromBundle(getArguments()).getCtagoryName();
+
         databaseHelper=new DatabaseHelper(this.getContext());
         meals=new ArrayList<>();
 
-        recyclerView=myView.findViewById(R.id.recyclerCategory);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setClickable(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(),RecyclerView.VERTICAL,false));
+        //Get current category pic from pics dictionary
+        categoryImageDictionary();
+        String imageCategoryUrl=categoryPics.get(currentCategory);
+        ImageView categoryImageView=myView.findViewById(R.id.categoryImageView);
+        Picasso.with(this.getContext()).load(imageCategoryUrl).into(categoryImageView);
+        ImageView roundImageView=myView.findViewById(R.id.roundImageView);
+        Picasso.with(this.getContext()).load(imageCategoryUrl).into(roundImageView);
 
-        String category=RecipesCategoryArgs.fromBundle(getArguments()).getCtagoryName();
+        categoryName=myView.findViewById(R.id.categoryName);
+        categoryName.setText(currentCategory);
 
-        Cursor cursor=databaseHelper.getMealsFromCategory(category);
+        //Get the list from Database
+        Cursor cursor=databaseHelper.getMealsFromCategory(currentCategory);
         cursor.moveToFirst();
         meals.add(new Meal(cursor.getString(2),cursor.getString(3),cursor.getString(4)));
         while (cursor.moveToNext()){
@@ -74,17 +85,35 @@ public class RecipesCategory extends Fragment implements MyAdapter.OnMealListene
         }
 
         myAdapter=new MyAdapter(meals,this.getContext(),RecipesCategory.this,R.layout.cell_recipe_category);
+
+        recyclerView=myView.findViewById(R.id.recyclerCategory);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setClickable(true);
+        // recyclerView.setNestedScrollingEnabled(false);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(),RecyclerView.VERTICAL,false));
         recyclerView.setAdapter(myAdapter);
 
-       // textViewCategory=myView.findViewById(R.id.categoryName);
-       // textViewCategory.setText(category);
-
-
-
-
-
+        mealsCount=myView.findViewById(R.id.mealsCount);
+        mealsCount.setText(cursor.getCount()+" Recipes");
 
         return myView;
+    }
+
+    public void categoryImageDictionary(){
+        categoryPics=new HashMap<>();
+        categoryPics.put("Beef","https://images.pexels.com/photos/675951/pexels-photo-675951.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
+        categoryPics.put("Breakfast","https://images.pexels.com/photos/2113556/pexels-photo-2113556.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
+        categoryPics.put("Chicken","https://images.pexels.com/photos/1624487/pexels-photo-1624487.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
+        categoryPics.put("Dessert","https://images.pexels.com/photos/1099680/pexels-photo-1099680.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
+        categoryPics.put("Goat","https://images.pexels.com/photos/3906290/pexels-photo-3906290.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
+        categoryPics.put("Lamb","https://images.pexels.com/photos/323682/pexels-photo-323682.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
+        categoryPics.put("Pasta","https://images.pexels.com/photos/803963/pexels-photo-803963.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
+        categoryPics.put("Pork","https://images.pexels.com/photos/416471/pexels-photo-416471.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
+        categoryPics.put("Seafood","https://images.pexels.com/photos/566344/pexels-photo-566344.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
+        categoryPics.put("Side","https://images.pexels.com/photos/2781540/pexels-photo-2781540.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
+        categoryPics.put("Starter","https://images.pexels.com/photos/3669501/pexels-photo-3669501.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
+        categoryPics.put("Vegan","https://images.pexels.com/photos/248509/pexels-photo-248509.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
+        categoryPics.put("Vegetarian","https://images.pexels.com/photos/1143754/pexels-photo-1143754.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
     }
 
     // TODO: Rename method, update argument and hook method into UI event

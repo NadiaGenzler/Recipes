@@ -50,7 +50,7 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     String randomMealId;
 
 
-    String [] categories={"Pasta","Breakfast","Beef"};
+    String [] categories={"Pasta","Side","Beef"};
     RecyclerView recyclerView0;
     RecyclerView recyclerView1;
     RecyclerView recyclerView2;
