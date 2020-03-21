@@ -89,7 +89,7 @@ public class RecipesCategory extends Fragment implements MyAdapter.OnMealListene
         recyclerView=myView.findViewById(R.id.recyclerCategory);
         recyclerView.setHasFixedSize(true);
         recyclerView.setClickable(true);
-        // recyclerView.setNestedScrollingEnabled(false);
+        //recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(),RecyclerView.VERTICAL,false));
         recyclerView.setAdapter(myAdapter);
 

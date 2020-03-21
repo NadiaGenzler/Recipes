@@ -65,11 +65,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return response;
     }
 
-//    public Cursor getMeal(String mealId){
-//        SQLiteDatabase db=this.getWritableDatabase();
-//        Cursor response=db.rawQuery("select * from"+TABLE_NAME+"where MEAL_ID ='"+mealId+"'",null);
-//        return response;
-//    }
+    public Cursor getMealByName(String mealName){
+        SQLiteDatabase db=this.getWritableDatabase();
+        Cursor response=db.rawQuery("select * from"+TABLE_NAME+"where NAME ='"+mealName+"'",null);
+        return response;
+    }
 
 //    public Integer deleteData(String name)
 //    {

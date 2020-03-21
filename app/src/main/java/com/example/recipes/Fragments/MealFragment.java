@@ -1,5 +1,6 @@
 package com.example.recipes.Fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -137,6 +139,7 @@ public class MealFragment extends Fragment {
             }
         });
     }
+
 
     // Load the ingredients and measures to the view
     public void showIngredientsAndMeasures(final Context context,final int i){

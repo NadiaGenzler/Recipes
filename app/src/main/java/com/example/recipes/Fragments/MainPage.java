@@ -1,5 +1,7 @@
 package com.example.recipes.Fragments;
 
+import android.accessibilityservice.AccessibilityService;
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -15,7 +17,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Adapter;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.example.recipes.MainActivity;
@@ -30,7 +39,7 @@ import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Currency;
+import java.util.HashMap;
 import java.util.List;
 
 import okhttp3.OkHttpClient;
@@ -43,26 +52,25 @@ import static android.content.ContentValues.TAG;
 
 
 public class MainPage extends Fragment implements MyAdapter.OnMealListener {
-    //top random meal
+    //Search
+    AutoCompleteTextView search;
+    ArrayList allMealsName;
+    HashMap <String,String > mealsNameIdDictionary;
+    TextView name;
+    //Top random meal
     Meal randomMeal;
     TextView randomMealTV;
     ImageView randomMealImage;
     String randomMealId;
 
-
+    //Other recipes
     String [] categories={"Pasta","Side","Beef"};
-    RecyclerView recyclerView0;
-    RecyclerView recyclerView1;
-    RecyclerView recyclerView2;
 
-    List<MyAdapter> myAdapters;
-
+    RecyclerView recyclerView0,recyclerView1,recyclerView2;
     MyAdapter myAdapter;
-    MealsObj meals;
 
-    List<Meal> meals0;
-    List<Meal> meals1;
-    List<Meal> meals2;
+    MealsObj meals;
+    List<Meal> meals0,meals1,meals2;
 
     TextView categoryNameTV;
     int count;
@@ -75,7 +83,6 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     public MainPage() {
         // Required empty public constructor
     }
-
     public static MainPage newInstance() {
         MainPage fragment = new MainPage();
         Bundle args = new Bundle();
@@ -93,36 +100,116 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View myView=inflater.inflate(R.layout.fragment_main_page, container, false);
+        db=new DatabaseHelper(this.getContext());
+
+        //Search Recipes
+        searchDropdown(myView);
+        searchResult(myView);
+        search.clearFocus();
+
+        //Handle the Random Meal
         randomMealTV=myView.findViewById(R.id.randomMeal);
         randomMealImage=myView.findViewById(R.id.randomMealImage);
-        getRandomMeal(this.getContext(),myView);
-
+        getRandomMealFromUrl(this.getContext(),myView);
         randomMealImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                hideKeyboardFrom(getContext(),myView);
             NavDirections action = MainPageDirections.actionMainPageToMeal(randomMealId);
-            Navigation.findNavController(v).navigate(action);
-            }
+            Navigation.findNavController(v).navigate(action);}
         });
 
-        db=new DatabaseHelper(this.getContext());
-
+        //Handle the meals
         count=0;
-
         instantiateRecyclerView(myView);
-
         meals0=new ArrayList<>();
         meals1=new ArrayList<>();
         meals2=new ArrayList<>();
-
-        myAdapters=new ArrayList<>();
-
         showTheMealsInRecyclerViews(myView);
+
 
         return myView;
     }
 
+    //Search Recipes
+    public void searchDropdown(View myView){
+        Cursor cursor=db.getAllMeals();
+        cursor.moveToFirst();
+        allMealsName=new ArrayList();
+        mealsNameIdDictionary=new HashMap<>();
 
+        for (int i = 0; i < cursor.getCount()-1; i++){
+            allMealsName.add(cursor.getString(3));
+            mealsNameIdDictionary.put(cursor.getString(3),cursor.getString(2));
+            cursor.moveToNext();}
+        Log.e(TAG, allMealsName.size()+"" );
+
+        search=myView.findViewById(R.id.searchAuto);
+        ArrayAdapter adapter=new ArrayAdapter(getContext(),R.layout.cell_drop_down,allMealsName);
+        search.setAdapter(adapter);
+    }
+    public void searchResult(final View myView){
+        search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                name=view.findViewById(R.id.text1);
+                String mealName=name.getText().toString();
+                String mealId=mealsNameIdDictionary.get(mealName);
+               // Log.e(TAG, "onItemClick: "+mealName+mealId+"");
+
+                hideKeyboardFrom(getContext(),myView);
+
+                NavDirections action=MainPageDirections.actionMainPageToMeal(mealId);
+                Navigation.findNavController(myView).navigate(action);
+            }
+        });
+    }
+
+    public static void hideKeyboardFrom(Context context, View view) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    //Get the Random Meal From URL
+    public void getRandomMealFromUrl(final Context context, final View myView){
+        String url="https://www.themealdb.com/api/json/v1/1/random.php";
+        final OkHttpClient client=new OkHttpClient();
+        Request request=new Request.Builder().url(url).build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e(TAG, e.toString() );
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String serverResponse=response.body().string();
+                if(response.isSuccessful()){
+                    GsonBuilder gsonBuilder=new GsonBuilder();
+                    Gson gson=gsonBuilder.create();
+
+                    meals=gson.fromJson(serverResponse,MealsObj.class);
+                    randomMeal=meals.meals.get(0);
+
+                    ((MainActivity) context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            randomMealId=randomMeal.idMeal;
+                            randomMealTV.setText(randomMeal.strMeal);
+                            Picasso.with(context).load(randomMeal.strMealThumb).into(randomMealImage);
+
+                        }
+                    });
+
+                }
+            }
+        });
+
+    }
+
+    //Handle the meals
     public void instantiateRecyclerView(View myView){
         recyclerView0=myView.findViewById(R.id.categoryPics0);
         recyclerView0.setHasFixedSize(true);
@@ -137,7 +224,6 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
         recyclerView2.setHasFixedSize(true);
         recyclerView2.setClickable(true);
     }
-
     public void showTheMealsInRecyclerViews(View myView){
         for (int i = 0; i < categories.length; i++) {
             String categoryNameIdStr="categoryName"+i;
@@ -145,7 +231,7 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
 
             Cursor cursor=db.getMealsFromCategory(categories[i]);
 
-            Log.e(TAG, cursor.getCount()+"" );
+          //  Log.e(TAG, cursor.getCount()+"" );
             switch (i){
                 case 0:
                     cursor.moveToFirst();
@@ -194,7 +280,18 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
         }
 
     }
+    @Override
+    public void onMealClick(View myView,String mealId,int position) {
+        hideKeyboardFrom(getContext(),myView);
+        NavDirections action = MainPageDirections.actionMainPageToMeal(mealId);
+        Navigation.findNavController(myView).navigate(action);
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        search.setText("");
+    }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -236,53 +333,11 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     }
 
 
-    @Override
-    public void onMealClick(View v,String mealId,int position) {
-        NavDirections action = MainPageDirections.actionMainPageToMeal(mealId);
-        Navigation.findNavController(v).navigate(action);
-    }
 
 
 
-    public void getRandomMeal(final Context context,final View myView){
-        String url="https://www.themealdb.com/api/json/v1/1/random.php";
-        final OkHttpClient client=new OkHttpClient();
-        Request request=new Request.Builder().url(url).build();
 
 
-        client.newCall(request).enqueue(new Callback() {
-
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.e(TAG, e.toString() );
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String serverResponse=response.body().string();
-                if(response.isSuccessful()){
-                    GsonBuilder gsonBuilder=new GsonBuilder();
-                    Gson gson=gsonBuilder.create();
-
-                    meals=gson.fromJson(serverResponse,MealsObj.class);
-                    randomMeal=meals.meals.get(0);
-
-                    ((MainActivity) context).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            randomMealId=randomMeal.idMeal;
-                            randomMealTV.setText(randomMeal.strMeal);
-                            Picasso.with(context).load(randomMeal.strMealThumb).into(randomMealImage);
-
-                        }
-                    });
-
-                }
-            }
-        });
-
-    }
 }
 
 
