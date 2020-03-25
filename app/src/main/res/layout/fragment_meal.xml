@@ -32,11 +32,13 @@
                 <ImageView
                     android:layout_width="30dp"
                     android:layout_height="30dp"
+                    android:id="@+id/favoriteBtn"
                     android:scaleType="centerInside"
                     android:src="@drawable/empty_heart"
                     android:layout_gravity="end"
 
                     />
+
             </LinearLayout>
 
 

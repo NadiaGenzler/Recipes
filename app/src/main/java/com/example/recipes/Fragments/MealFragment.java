@@ -50,7 +50,8 @@ public class MealFragment extends Fragment {
     ImageView mealImage;
     ImageButton toVideo;
     private TableLayout ingredientsTable;
-    private DatabaseHelper databaseHelper;
+   // private DatabaseHelper databaseHelper;
+    boolean favorite;
     private OnFragmentInteractionListener mListener;
 
     public MealFragment() {
@@ -76,10 +77,24 @@ public class MealFragment extends Fragment {
         String mealId= MealFragmentArgs.fromBundle(getArguments()).getMealId();
         ingredientsTable=myView.findViewById(R.id.ingredientsTable);
 
+        addToFavorites(myView,mealId);
+
         getTheMeals(this.getContext(),myView,mealId);
 
 
         return myView;
+    }
+
+    public void addToFavorites(View myView,final String mealId){
+
+        ImageView favBtn=myView.findViewById(R.id.favoriteBtn);
+        favBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.e(TAG, mealId+"" );
+            }
+        });
     }
 
     public void getTheMeals(final Context context,final View myView,final String mealId){
