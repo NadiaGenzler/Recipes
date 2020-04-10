@@ -40,7 +40,11 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Call;
@@ -64,7 +68,7 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     String randomMealId;
 
     //Other recipes
-    String [] categories={"Pasta","Side","Beef"};
+    String [] categories={"Beef","Breakfast","Chicken","Dessert","Lamb","Pasta","Pork","Seafood","Side","Starter","Vegan","Vegetarian"};
 
     RecyclerView recyclerView0,recyclerView1,recyclerView2;
     MyAdapter myAdapter;
@@ -225,13 +229,16 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
         recyclerView2.setClickable(true);
     }
     public void showTheMealsInRecyclerViews(View myView){
-        for (int i = 0; i < categories.length; i++) {
+        /////////////////////////////////////////////Solve the problem of repeating nums
+
+        for (int i = 0; i < 3; i++) {
             String categoryNameIdStr="categoryName"+i;
             String categoryButtonIdStr="categoryButton"+i;
+            Random r=new Random();
+            int randomCaregory=r.nextInt(categories.length);
 
-            Cursor cursor=db.getMealsFromCategory(categories[i]);
+            Cursor cursor=db.getMealsFromCategory(categories[randomCaregory]);
 
-          //  Log.e(TAG, cursor.getCount()+"" );
             switch (i){
                 case 0:
                     cursor.moveToFirst();
@@ -266,9 +273,9 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
 //                sevenMeals.add(meals.meals.get(i));
 //            }
             categoryNameTV=myView.findViewById(getResources().getIdentifier(categoryNameIdStr,"id",this.getContext().getPackageName()));
-            categoryNameTV.setText(categories[i]);
+            categoryNameTV.setText(categories[randomCaregory]);
 
-            final int finalI = i;
+            final int finalI = randomCaregory;
             myView.findViewById(getResources().getIdentifier(categoryButtonIdStr,"id",this.getContext().getPackageName()))
                     .setOnClickListener(new View.OnClickListener() {
                         @Override

@@ -2,6 +2,10 @@ package com.example.recipes.Fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import androidx.preference.PreferenceManager;
+
+import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -31,7 +35,12 @@ import com.google.gson.GsonBuilder;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.prefs.Preferences;
+import java.util.prefs.PreferencesFactory;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -49,8 +58,9 @@ public class MealFragment extends Fragment {
     TextView mealName, instructions;
     ImageView mealImage;
     ImageButton toVideo;
+   // Set<String> favoriteMeals;
     private TableLayout ingredientsTable;
-   // private DatabaseHelper databaseHelper;
+    private DatabaseHelper databaseHelper;
     boolean favorite;
     private OnFragmentInteractionListener mListener;
 
@@ -77,9 +87,12 @@ public class MealFragment extends Fragment {
         String mealId= MealFragmentArgs.fromBundle(getArguments()).getMealId();
         ingredientsTable=myView.findViewById(R.id.ingredientsTable);
 
-        addToFavorites(myView,mealId);
+        //Fetch meal from JSON
+        getTheMeal(this.getContext(),myView,mealId);
 
-        getTheMeals(this.getContext(),myView,mealId);
+        //Add to favorites
+        databaseHelper=new DatabaseHelper(this.getContext());
+        addToFavorites(myView,mealId);
 
 
         return myView;
@@ -92,12 +105,29 @@ public class MealFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                Log.e(TAG, mealId+"" );
+        if(databaseHelper.isFavorite(mealId)){
+            databaseHelper.removeFromFavorites(mealId);
+        }else {
+            databaseHelper.addToFavorites(mealId);
+        }
+
+                getFavorites();
             }
         });
     }
 
-    public void getTheMeals(final Context context,final View myView,final String mealId){
+    public void getFavorites(){
+
+       Cursor cursor=databaseHelper.getAllFavorites();
+        List<String > fav=new ArrayList<>();
+        cursor.moveToFirst();
+        while (cursor.isAfterLast()==false) {
+            fav.add(cursor.getString(0));
+        }
+
+        Log.e(TAG, fav+"" );
+    }
+    public void getTheMeal(final Context context,final View myView,final String mealId){
 
         meals = new MealsObj();
         String url = "https://www.themealdb.com/api/json/v1/1/lookup.php?i="+mealId;
@@ -134,7 +164,7 @@ public class MealFragment extends Fragment {
                             currentMeal.addIngredients();
                             currentMeal.addMeasurs();
                             for (int i = 0; i < 20; i++) {
-                                if(!(currentMeal.ingredientsArr[i].trim()).isEmpty()||!(currentMeal.measuresArr[i].trim()).isEmpty()){
+                                if((currentMeal.ingredientsArr[i].trim())!=null||(currentMeal.measuresArr[i].trim())!=null){
                                     showIngredientsAndMeasures(context,i);
                                 }else {
                                     break;
