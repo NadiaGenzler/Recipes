@@ -28,14 +28,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL("create table " + MEALS_TABLE +
                 " (ID INTEGER PRIMARY KEY AUTOINCREMENT, CATEGORY TEXT, MEAL_ID TEXT, NAME TEXT,IMAGE TEXT)");
-        sqLiteDatabase.execSQL("create table " + FAVORITE_TABLE + " (MEAL_ID TEXT) ");
+       // sqLiteDatabase.execSQL("create table " + FAVORITE_TABLE + " (MEAL_ID TEXT) ");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " +MEALS_TABLE);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " +FAVORITE_TABLE);
+       // sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " +FAVORITE_TABLE);
         onCreate(sqLiteDatabase);
+    }
+
+    public void addNewTable(){
+        //At first you will need a Database object.Lets create it.
+        SQLiteDatabase sqLiteDatabase=this.getWritableDatabase();
+
+        sqLiteDatabase.execSQL("create table " + FAVORITE_TABLE + " (MEAL_ID TEXT) ");
     }
 
     public boolean insertData(String category, String mealId, String name,String image)

@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.recipes.Fragments.MealFragmentArgs;
 import com.example.recipes.MainActivity;
@@ -57,6 +58,7 @@ public class MealFragment extends Fragment {
     Meal currentMeal;
     TextView mealName, instructions;
     ImageView mealImage;
+    ImageView favBtn;
     ImageButton toVideo;
    // Set<String> favoriteMeals;
     private TableLayout ingredientsTable;
@@ -90,28 +92,39 @@ public class MealFragment extends Fragment {
         //Fetch meal from JSON
         getTheMeal(this.getContext(),myView,mealId);
 
-        //Add to favorites
+        favBtn=myView.findViewById(R.id.favoriteBtn);
         databaseHelper=new DatabaseHelper(this.getContext());
+        if(databaseHelper.isFavorite(mealId)){
+            favBtn.setImageResource(R.drawable.full_heart);
+        }else {
+            favBtn.setImageResource(R.drawable.empty_heart);
+        }
+
+        //Add to favorites
         addToFavorites(myView,mealId);
 
 
         return myView;
     }
 
-    public void addToFavorites(View myView,final String mealId){
+    public void addToFavorites(final View myView, final String mealId){
 
-        ImageView favBtn=myView.findViewById(R.id.favoriteBtn);
+        final ImageView favBtn=myView.findViewById(R.id.favoriteBtn);
         favBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
         if(databaseHelper.isFavorite(mealId)){
             databaseHelper.removeFromFavorites(mealId);
+            favBtn.setImageResource(R.drawable.empty_heart);
+            Toast.makeText(myView.getContext(),"Recipe was removed from favorites",Toast.LENGTH_LONG).show();
         }else {
             databaseHelper.addToFavorites(mealId);
+            favBtn.setImageResource(R.drawable.full_heart);
+            Toast.makeText(myView.getContext(),"Recipe was added to favorites",Toast.LENGTH_LONG).show();
         }
 
-                getFavorites();
+        getFavorites();
             }
         });
     }
@@ -120,9 +133,12 @@ public class MealFragment extends Fragment {
 
        Cursor cursor=databaseHelper.getAllFavorites();
         List<String > fav=new ArrayList<>();
+        Log.e(TAG, cursor.getCount()+"" );
+
         cursor.moveToFirst();
-        while (cursor.isAfterLast()==false) {
+        for (int i = 0; i < cursor.getCount(); i++) {
             fav.add(cursor.getString(0));
+            cursor.moveToNext();
         }
 
         Log.e(TAG, fav+"" );
