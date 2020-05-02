@@ -1,6 +1,5 @@
 package com.example.recipes.Fragments;
 
-import android.accessibilityservice.AccessibilityService;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -18,14 +17,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.recipes.MainActivity;
 import com.example.recipes.Model.Meal;
@@ -40,11 +37,8 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Call;
@@ -68,10 +62,10 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     String randomMealId;
 
     //Other recipes
-    String [] categories={"Beef","Breakfast","Chicken","Dessert","Lamb","Pasta","Pork","Seafood","Side","Starter","Vegan","Vegetarian"};
-
+    String [] categories={"Beef","Breakfast","Chicken","Dessert","Lamb","Pasta","Pork","Seafood","Side","Starter","Vegan","Vegetarian","Miscellaneous"};
     RecyclerView recyclerView0,recyclerView1,recyclerView2;
     MyAdapter myAdapter;
+    ImageView favBtn;
 
     MealsObj meals;
     List<Meal> meals0,meals1,meals2;
@@ -79,7 +73,7 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     TextView categoryNameTV;
     int count;
 
-    DatabaseHelper db;
+    DatabaseHelper databaseHelper;
 
     private OnFragmentInteractionListener mListener;
 
@@ -104,12 +98,23 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View myView=inflater.inflate(R.layout.fragment_main_page, container, false);
-        db=new DatabaseHelper(this.getContext());
+        databaseHelper =new DatabaseHelper(this.getContext());
+
+//        Cursor cursorGetId=databaseHelper.getAllFavorites();
+//        List <String> favsId=new ArrayList<>();
+//        cursorGetId.moveToFirst();
+//        for (int i = 0; i < cursorGetId.getCount(); i++) {
+//            favsId.add(cursorGetId.getString(0));
+//            cursorGetId.moveToNext();
+//        }
+//        Log.e(TAG, " "+favsId );
 
         //Search Recipes
         searchDropdown(myView);
         searchResult(myView);
         search.clearFocus();
+        //Go to favorites
+        favList(myView);
 
         //Handle the Random Meal
         randomMealTV=myView.findViewById(R.id.randomMeal);
@@ -132,46 +137,9 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
         showTheMealsInRecyclerViews(myView);
 
 
+
+
         return myView;
-    }
-
-    //Search Recipes
-    public void searchDropdown(View myView){
-        Cursor cursor=db.getAllMeals();
-        cursor.moveToFirst();
-        allMealsName=new ArrayList();
-        mealsNameIdDictionary=new HashMap<>();
-
-        for (int i = 0; i < cursor.getCount()-1; i++){
-            allMealsName.add(cursor.getString(3));
-            mealsNameIdDictionary.put(cursor.getString(3),cursor.getString(2));
-            cursor.moveToNext();}
-        Log.e(TAG, allMealsName.size()+"" );
-
-        search=myView.findViewById(R.id.searchAuto);
-        ArrayAdapter adapter=new ArrayAdapter(getContext(),R.layout.cell_drop_down,allMealsName);
-        search.setAdapter(adapter);
-    }
-    public void searchResult(final View myView){
-        search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                name=view.findViewById(R.id.text1);
-                String mealName=name.getText().toString();
-                String mealId=mealsNameIdDictionary.get(mealName);
-               // Log.e(TAG, "onItemClick: "+mealName+mealId+"");
-
-                hideKeyboardFrom(getContext(),myView);
-
-                NavDirections action=MainPageDirections.actionMainPageToMeal(mealId);
-                Navigation.findNavController(myView).navigate(action);
-            }
-        });
-    }
-
-    public static void hideKeyboardFrom(Context context, View view) {
-        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     //Get the Random Meal From URL
@@ -231,36 +199,43 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     public void showTheMealsInRecyclerViews(View myView){
         /////////////////////////////////////////////Solve the problem of repeating nums
 
+
+
         for (int i = 0; i < 3; i++) {
             String categoryNameIdStr="categoryName"+i;
             String categoryButtonIdStr="categoryButton"+i;
+
             Random r=new Random();
             int randomCaregory=r.nextInt(categories.length);
 
-            Cursor cursor=db.getMealsFromCategory(categories[randomCaregory]);
+            Cursor cursor= databaseHelper.getMealsFromCategory(categories[randomCaregory]);
 
             switch (i){
                 case 0:
                     cursor.moveToFirst();
-                    meals0.add(new Meal(cursor.getString(2),cursor.getString(3),cursor.getString(4)));
-                    while (cursor.moveToNext()){
-                        meals0.add(new Meal(cursor.getString(2),cursor.getString(3),cursor.getString(4)));
+                    for(int j = 0; j <cursor.getCount(); j++){
+                        meals0.add(new Meal(cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4)));
+                        cursor.moveToNext();
                     }
                     myAdapter=new MyAdapter(meals0,this.getContext(),MainPage.this,R.layout.cell_main_page);
                     recyclerView0.setLayoutManager(new LinearLayoutManager(this.getContext(), RecyclerView.HORIZONTAL, false));
                     recyclerView0.setAdapter(myAdapter);
                     break;
                 case 1:
-                    while (cursor.moveToNext()){
-                        meals1.add(new Meal(cursor.getString(2),cursor.getString(3),cursor.getString(4)));
+                    cursor.moveToFirst();
+                    for(int j = 0; j <cursor.getCount(); j++){
+                        meals1.add(new Meal(cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4)));
+                        cursor.moveToNext();
                     }
                     myAdapter=new MyAdapter(meals1,this.getContext(),MainPage.this,R.layout.cell_main_page);
                     recyclerView1.setLayoutManager(new LinearLayoutManager(this.getContext(), RecyclerView.HORIZONTAL, false));
                     recyclerView1.setAdapter(myAdapter);
                     break;
                 case 2:
-                    while (cursor.moveToNext()){
-                        meals2.add(new Meal(cursor.getString(2),cursor.getString(3),cursor.getString(4)));
+                    cursor.moveToFirst();
+                    for(int j = 0; j <cursor.getCount(); j++){
+                        meals2.add(new Meal(cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4)));
+                        cursor.moveToNext();
                     }
                     myAdapter=new MyAdapter(meals2,this.getContext(),MainPage.this,R.layout.cell_main_page);
                     recyclerView2.setLayoutManager(new LinearLayoutManager(this.getContext(), RecyclerView.HORIZONTAL, false));
@@ -287,6 +262,71 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
         }
 
     }
+
+    //Search Recipes
+    public void searchDropdown(View myView){
+        Cursor cursor= databaseHelper.getAllMeals();
+        cursor.moveToFirst();
+        allMealsName=new ArrayList();
+        mealsNameIdDictionary=new HashMap<>();
+
+        for (int i = 0; i < cursor.getCount()-1; i++){
+            allMealsName.add(cursor.getString(3));
+            mealsNameIdDictionary.put(cursor.getString(3),cursor.getString(2));
+            cursor.moveToNext();}
+        Log.e(TAG, allMealsName.size()+"" );
+
+        search=myView.findViewById(R.id.searchAuto);
+        ArrayAdapter adapter=new ArrayAdapter(getContext(),R.layout.cell_drop_down,allMealsName);
+        search.setAdapter(adapter);
+    }
+    public void searchResult(final View myView){
+        search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                name=view.findViewById(R.id.text1);
+                String mealName=name.getText().toString();
+                String mealId=mealsNameIdDictionary.get(mealName);
+                // Log.e(TAG, "onItemClick: "+mealName+mealId+"");
+
+                hideKeyboardFrom(getContext(),myView);
+
+                NavDirections action=MainPageDirections.actionMainPageToMeal(mealId);
+                Navigation.findNavController(myView).navigate(action);
+            }
+        });
+    }
+
+    public static void hideKeyboardFrom(Context context, View view) {
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    //Go to favorite list
+    public void favList(final View myView){
+        myView.findViewById(R.id.favoriteListBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NavDirections action=MainPageDirections.actionMainPageToFavoriteMeals();
+                Navigation.findNavController(myView).navigate(action);
+            }
+        });
+    }
+
+//    public void showIfFavorite(View cardView,String mealId){
+//        favBtn=cardView.findViewById(R.id.favoriteBtn);
+//        if(databaseHelper.isFavorite(mealId)){
+//            favBtn.setImageResource(R.drawable.full_heart);
+//        }else {
+//            favBtn.setImageResource(R.drawable.empty_heart);
+//        }
+//    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        search.setText("");
+    }
+
     @Override
     public void onMealClick(View myView,String mealId,int position) {
         hideKeyboardFrom(getContext(),myView);
@@ -295,10 +335,20 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        search.setText("");
+    public void onFavoriteClick(View myView, String mealId, int position) {
+        favBtn=myView.findViewById(R.id.favoriteBtn);
+        if(databaseHelper.isFavorite(mealId)){
+            databaseHelper.removeFromFavorites(mealId);
+            favBtn.setImageResource(R.drawable.empty_heart);
+            Toast.makeText(myView.getContext(),"Recipe was removed from favorites",Toast.LENGTH_LONG).show();
+        }else {
+            databaseHelper.addToFavorites(mealId);
+            favBtn.setImageResource(R.drawable.full_heart);
+
+            Toast.makeText(myView.getContext(),"Recipe was added to favorites",Toast.LENGTH_LONG).show();
+        }
     }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {

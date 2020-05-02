@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="280dp"
+    android:layout_height="250dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout
@@ -12,9 +12,9 @@
         <com.makeramen.roundedimageview.RoundedImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
             android:scaleType="centerCrop"
             android:id="@+id/mealImg"
             app:riv_corner_radius="10dip"
@@ -23,24 +23,43 @@
         <com.makeramen.roundedimageview.RoundedImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
             app:riv_corner_radius="10dip"
             app:riv_mutate_background="true"
             android:background="@drawable/gradient"/>
 
-        <TextView
-            android:id="@+id/myText"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/mealImg"
-            android:layout_marginBottom="20dp"
-            android:paddingStart="25dp"
-            android:textSize="30dp"
-            android:text="meals long name fnjnfdkjfnkdj"
-            android:textColor="@color/white"
-            android:textStyle="bold"/>
+            android:layout_margin="20dp"
+            >
+
+            <TextView
+                android:id="@+id/nameTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="30dp"
+                android:text="meals long name fnjnfdkjfnkdj"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                android:layout_alignParentBottom="true"/>
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:id="@+id/favoriteBtn"
+                android:scaleType="centerInside"
+                android:src="@drawable/empty_heart"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                />
+        </RelativeLayout>
+
 
     </RelativeLayout>
 

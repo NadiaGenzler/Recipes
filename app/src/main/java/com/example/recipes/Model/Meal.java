@@ -22,10 +22,11 @@ public class Meal implements Serializable {
    public Meal() {
    }
 
-   public Meal(String idMeal,String strMeal,String strMealThumb){
+   public Meal(String strCategory,String idMeal,String strMeal,String strMealThumb){
       this.idMeal=idMeal;
       this.strMeal=strMeal;
       this.strMealThumb=strMealThumb;
+      this.strCategory=strCategory;
 
    }
    public String[] addIngredients(){

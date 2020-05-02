@@ -32,7 +32,7 @@ public class SplashActivity extends AppCompatActivity {
     private static int TIME_OUT_SPLASH=2000;
 
     String [] categories={"Beef", "Breakfast", "Chicken","Dessert","Goat","Lamb",
-            "Pasta","Pork","Seafood","Side","Starter","Vegan","Vegetarian"};
+            "Pasta","Pork","Seafood","Side","Starter","Vegan","Vegetarian","Miscellaneous"};
     MealsObj meals;
     DatabaseHelper db;
 
@@ -42,6 +42,7 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         db=new DatabaseHelper(this);
+       // db.deleteAllData();
 
         Cursor cursor = db.getAllMeals();
         if (cursor.getCount() == 0){

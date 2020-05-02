@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.recipes.Adapters.MyAdapter;
 import com.example.recipes.Model.Meal;
@@ -37,6 +38,7 @@ public class RecipesCategory extends Fragment implements MyAdapter.OnMealListene
     RecyclerView recyclerView;
     MyAdapter myAdapter;
     List<Meal> meals;
+    ImageView favBtn;
 
     private OnFragmentInteractionListener mListener;
 
@@ -79,19 +81,19 @@ public class RecipesCategory extends Fragment implements MyAdapter.OnMealListene
         //Get the list from Database
         Cursor cursor=databaseHelper.getMealsFromCategory(currentCategory);
         cursor.moveToFirst();
-        meals.add(new Meal(cursor.getString(2),cursor.getString(3),cursor.getString(4)));
+        meals.add(new Meal(cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4)));
         while (cursor.moveToNext()){
-            meals.add(new Meal(cursor.getString(2),cursor.getString(3),cursor.getString(4)));
+            meals.add(new Meal(cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4)));
         }
 
-        myAdapter=new MyAdapter(meals,this.getContext(),RecipesCategory.this,R.layout.cell_recipe_category);
+        //myAdapter=new MyAdapter(meals,this.getContext(),RecipesCategory.this,R.layout.cell_recipe_category);
 
         recyclerView=myView.findViewById(R.id.recyclerCategory);
         recyclerView.setHasFixedSize(true);
         recyclerView.setClickable(true);
         //recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(),RecyclerView.VERTICAL,false));
-        recyclerView.setAdapter(myAdapter);
+        recyclerView.setAdapter(new MyAdapter(meals,this.getContext(),RecipesCategory.this,R.layout.cell_recipe_category));
 
         mealsCount=myView.findViewById(R.id.mealsCount);
         mealsCount.setText(cursor.getCount()+" Recipes");
@@ -99,6 +101,7 @@ public class RecipesCategory extends Fragment implements MyAdapter.OnMealListene
         return myView;
     }
 
+    //Category Description Images
     public void categoryImageDictionary(){
         categoryPics=new HashMap<>();
         categoryPics.put("Beef","https://images.pexels.com/photos/675951/pexels-photo-675951.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
@@ -114,7 +117,15 @@ public class RecipesCategory extends Fragment implements MyAdapter.OnMealListene
         categoryPics.put("Starter","https://images.pexels.com/photos/3669501/pexels-photo-3669501.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
         categoryPics.put("Vegan","https://images.pexels.com/photos/248509/pexels-photo-248509.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
         categoryPics.put("Vegetarian","https://images.pexels.com/photos/1143754/pexels-photo-1143754.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500");
+        categoryPics.put("Miscellaneous","https://images.pexels.com/photos/3730946/pexels-photo-3730946.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260");
     }
+
+    @Override
+    public void onMealClick(View v, String mealId, int position) {
+        NavDirections action=RecipesCategoryDirections.actionRecipesCategoryToMeal(mealId);
+        Navigation.findNavController(v).navigate(action);
+    }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -140,10 +151,20 @@ public class RecipesCategory extends Fragment implements MyAdapter.OnMealListene
         mListener = null;
     }
 
+
     @Override
-    public void onMealClick(View v, String mealId, int position) {
-        NavDirections action=RecipesCategoryDirections.actionRecipesCategoryToMeal(mealId);
-        Navigation.findNavController(v).navigate(action);
+    public void onFavoriteClick(View myView, String mealId, int position) {
+        favBtn=myView.findViewById(R.id.favoriteBtn);
+        if(databaseHelper.isFavorite(mealId)){
+            databaseHelper.removeFromFavorites(mealId);
+            favBtn.setImageResource(R.drawable.empty_heart);
+            Toast.makeText(myView.getContext(),"Recipe was removed from favorites",Toast.LENGTH_LONG).show();
+        }else {
+            databaseHelper.addToFavorites(mealId);
+            favBtn.setImageResource(R.drawable.full_heart);
+
+            Toast.makeText(myView.getContext(),"Recipe was added to favorites",Toast.LENGTH_LONG).show();
+        }
     }
 
     public interface OnFragmentInteractionListener {

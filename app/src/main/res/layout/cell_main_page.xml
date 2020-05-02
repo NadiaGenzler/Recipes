@@ -1,32 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="150dp"
-    android:layout_height="235dp"
+    android:layout_height="wrap_content"
     android:layout_marginLeft="10dp"
-
     android:outlineProvider="none"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
+        <RelativeLayout
+            android:layout_width="150dp"
+            android:layout_height="150dp">
 
-        <com.makeramen.roundedimageview.RoundedImageView
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_marginBottom="5dp"
-            android:id="@+id/mealImg"
-            app:riv_corner_radius="10dp"
-            app:riv_mutate_background="true"
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="5dp"
+                android:id="@+id/mealImg"
+                app:riv_corner_radius="10dp"
+                app:riv_mutate_background="true"
 
-            />
+                />
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:id="@+id/favoriteBtn"
+                android:scaleType="centerInside"
+                android:src="@drawable/empty_heart"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                />
+        </RelativeLayout>
+
         <TextView
             android:textSize="20dp"
             android:textColor="@color/cardview_dark_background"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:id="@+id/myText"
+            android:layout_height="wrap_content"
+            android:id="@+id/nameTv"
             android:text="meals long name fnjnfdkjfnkdj"
             />
 

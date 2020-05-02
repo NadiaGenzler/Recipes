@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.recipes.Model.Meal;
 import com.example.recipes.R;
+import com.example.recipes.Utils.DatabaseHelper;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -33,7 +34,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-
         View view= LayoutInflater.from(context).inflate(cardLayout,parent,false);
 
         return new MyAdapter.ViewHolder(view,onMealListener);
@@ -42,8 +42,22 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-        TextView textView=holder.textView;
-        textView.setText(listOfMeals.get(position).strMeal);
+        TextView nameTV = holder.nameTV;
+        nameTV.setText(listOfMeals.get(position).strMeal);
+
+        if (cardLayout == R.layout.cell_favorites) {
+            TextView categoryTV = holder.categoryTV;
+            categoryTV.setText("Category: " + listOfMeals.get(position).strCategory);
+        }
+        else if (cardLayout == R.layout.cell_main_page || cardLayout == R.layout.cell_recipe_category) {
+            ImageView fav = holder.addFavsBtn;
+            DatabaseHelper db = new DatabaseHelper(context);
+            if (db.isFavorite(listOfMeals.get(position).idMeal)) {
+                fav.setImageResource(R.drawable.full_heart);
+            } else {
+                fav.setImageResource(R.drawable.empty_heart);
+            }
+        }
 
         ImageView imageView=holder.imageView;
         Picasso.with(context).load(listOfMeals.get(position).strMealThumb).into(imageView);
@@ -55,27 +69,43 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-    TextView textView;
+    TextView nameTV;
+    TextView categoryTV;
     ImageView imageView;
     OnMealListener onMealListener;
+    ImageView removeFavsBtn;
+    ImageView addFavsBtn;
         public ViewHolder(@NonNull View itemView,OnMealListener onMealListener) {
             super(itemView);
             this.onMealListener=onMealListener;
 
-            textView = itemView.findViewById(R.id.myText);
+            nameTV = itemView.findViewById(R.id.nameTv);
+            categoryTV = itemView.findViewById(R.id.categoryTv);
             imageView=itemView.findViewById(R.id.mealImg);
             itemView.setOnClickListener(this);
+
+            if(cardLayout==R.layout.cell_favorites) {
+                removeFavsBtn = itemView.findViewById(R.id.removeBtn);
+                removeFavsBtn.setOnClickListener(this);
+            }else{
+                addFavsBtn=itemView.findViewById(R.id.favoriteBtn);
+                addFavsBtn.setOnClickListener(this);
+            }
         }
 
 
         @Override
         public void onClick(View v) {
-            onMealListener.onMealClick(v,listOfMeals.get(getAdapterPosition()).idMeal, getAdapterPosition());
-
+            if(v instanceof ImageView) {
+                onMealListener.onFavoriteClick(v, listOfMeals.get(getAdapterPosition()).idMeal, getAdapterPosition());
+            }else{
+                onMealListener.onMealClick(v,listOfMeals.get(getAdapterPosition()).idMeal, getAdapterPosition());
+            }
         }
     }
 
     public interface OnMealListener{
         void onMealClick(View v,String mealId,int position);
+        void onFavoriteClick(View v, String mealId, int position);
     }
 }

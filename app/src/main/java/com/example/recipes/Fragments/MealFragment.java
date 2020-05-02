@@ -2,15 +2,20 @@ package com.example.recipes.Fragments;
 
 import android.app.Activity;
 import android.content.Context;
+
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
 import androidx.preference.PreferenceManager;
 
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Path;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.text.Layout;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -39,6 +44,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.prefs.Preferences;
 import java.util.prefs.PreferencesFactory;
@@ -56,13 +62,13 @@ public class MealFragment extends Fragment {
 
     MealsObj meals;
     Meal currentMeal;
-    TextView mealName, instructions;
+    TextView mealName, categoryName, instructions;
     ImageView mealImage;
     ImageView favBtn;
     ImageButton toVideo;
    // Set<String> favoriteMeals;
     private TableLayout ingredientsTable;
-    private DatabaseHelper databaseHelper;
+
     boolean favorite;
     private OnFragmentInteractionListener mListener;
 
@@ -89,25 +95,27 @@ public class MealFragment extends Fragment {
         String mealId= MealFragmentArgs.fromBundle(getArguments()).getMealId();
         ingredientsTable=myView.findViewById(R.id.ingredientsTable);
 
+        DatabaseHelper databaseHelper=new DatabaseHelper(this.getContext());
         //Fetch meal from JSON
         getTheMeal(this.getContext(),myView,mealId);
 
+        //Add to favorites
+        addToFavorites(myView,mealId,databaseHelper);
+
         favBtn=myView.findViewById(R.id.favoriteBtn);
-        databaseHelper=new DatabaseHelper(this.getContext());
         if(databaseHelper.isFavorite(mealId)){
             favBtn.setImageResource(R.drawable.full_heart);
         }else {
             favBtn.setImageResource(R.drawable.empty_heart);
         }
 
-        //Add to favorites
-        addToFavorites(myView,mealId);
+
 
 
         return myView;
     }
 
-    public void addToFavorites(final View myView, final String mealId){
+    public void addToFavorites(final View myView, final String mealId,final DatabaseHelper databaseHelper){
 
         final ImageView favBtn=myView.findViewById(R.id.favoriteBtn);
         favBtn.setOnClickListener(new View.OnClickListener() {
@@ -121,28 +129,17 @@ public class MealFragment extends Fragment {
         }else {
             databaseHelper.addToFavorites(mealId);
             favBtn.setImageResource(R.drawable.full_heart);
+
             Toast.makeText(myView.getContext(),"Recipe was added to favorites",Toast.LENGTH_LONG).show();
+
         }
 
-        getFavorites();
+
             }
         });
     }
 
-    public void getFavorites(){
 
-       Cursor cursor=databaseHelper.getAllFavorites();
-        List<String > fav=new ArrayList<>();
-        Log.e(TAG, cursor.getCount()+"" );
-
-        cursor.moveToFirst();
-        for (int i = 0; i < cursor.getCount(); i++) {
-            fav.add(cursor.getString(0));
-            cursor.moveToNext();
-        }
-
-        Log.e(TAG, fav+"" );
-    }
     public void getTheMeal(final Context context,final View myView,final String mealId){
 
         meals = new MealsObj();
@@ -180,21 +177,31 @@ public class MealFragment extends Fragment {
                             currentMeal.addIngredients();
                             currentMeal.addMeasurs();
                             for (int i = 0; i < 20; i++) {
-                                if((currentMeal.ingredientsArr[i].trim())!=null||(currentMeal.measuresArr[i].trim())!=null){
+                                if(!(currentMeal.ingredientsArr[i].trim()).isEmpty()||!(currentMeal.measuresArr[i].trim()).isEmpty()){
                                     showIngredientsAndMeasures(context,i);
                                 }else {
                                     break;
                                 }
                             }
+                            categoryName=myView.findViewById(R.id.categoryName);
+                            categoryName.setText("See more from "+currentMeal.strCategory+" category");
+                            categoryName.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    NavDirections action= MealFragmentDirections.actionMealToRecipesCategory(currentMeal.strCategory);
+                                    Navigation.findNavController(myView).navigate(action);
+                                }
+                            });
 
                             instructions=myView.findViewById(R.id.instructions);
                             instructions.setText(currentMeal.strInstructions);
+
 
                         }
                     });
 
                 {
-                        //db.insertData(categoryName, meal.idMeal, meal.strMeal, meal.strMealThumb);
+                        //databaseHelper.insertData(categoryName, meal.idMeal, meal.strMeal, meal.strMealThumb);
                     }
                 }
             }
@@ -205,22 +212,24 @@ public class MealFragment extends Fragment {
     // Load the ingredients and measures to the view
     public void showIngredientsAndMeasures(final Context context,final int i){
         TableRow row=new TableRow(context);
-        TableLayout.LayoutParams TablelayoutParams=new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,TableLayout.LayoutParams.MATCH_PARENT);
-        row.setLayoutParams(TablelayoutParams);
+        TableLayout.LayoutParams tablelayoutParams=new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,TableLayout.LayoutParams.MATCH_PARENT);
+        row.setLayoutParams(tablelayoutParams);
         row.setPadding(0,0,0,5);
+
+        int half= (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,180,context.getResources().getDisplayMetrics());
 
         //Add Ingredients to table
         TextView ingredient=new TextView(context);
-        ingredient.setText(currentMeal.ingredientsArr[i]);
-        ingredient.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,TableRow.LayoutParams.WRAP_CONTENT,0.5f));
+        ingredient.setText(currentMeal.ingredientsArr[i].trim().substring(0,1).toUpperCase()+currentMeal.ingredientsArr[i].trim().substring(1)+"");
+        ingredient.setLayoutParams(new TableRow.LayoutParams(half,TableRow.LayoutParams.WRAP_CONTENT));
         ingredient.setTextSize(22);
         row.addView(ingredient,0);
         //Add Measures to the table
         TextView measure=new TextView(context);
-        measure.setText(currentMeal.measuresArr[i]);
-        measure.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,TableRow.LayoutParams.WRAP_CONTENT,0.5f));
+        measure.setText(currentMeal.measuresArr[i].trim());
+        measure.setLayoutParams(new TableRow.LayoutParams(half,TableRow.LayoutParams.WRAP_CONTENT));
         measure.setTextColor(getResources().getColor(R.color.black));
-        measure.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+     //   measure.setTextAlignment(View.TEXT_ALIGNMENT_);
         measure.setTextSize(20);
         row.addView(measure,1);
 

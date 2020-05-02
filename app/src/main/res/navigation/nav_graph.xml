@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_mainPage_to_recipesCategory"
             app:destination="@id/recipesCategory" />
+        <action
+            android:id="@+id/action_mainPage_to_favoriteMeals"
+            app:destination="@id/favoriteMeals" />
     </fragment>
     <fragment
         android:id="@+id/recipesCategory"
@@ -29,6 +32,9 @@
         <action
             android:id="@+id/action_recipesCategory_to_meal"
             app:destination="@id/meal" />
+        <action
+            android:id="@+id/action_recipesCategory_to_favoriteMeals"
+            app:destination="@id/favoriteMeals" />
     </fragment>
     <fragment
         android:id="@+id/meal"
@@ -39,10 +45,20 @@
             android:name="mealId"
             app:argType="string"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_meal_to_favoriteMeals"
+            app:destination="@id/favoriteMeals" />
+        <action
+            android:id="@+id/action_meal_to_recipesCategory"
+            app:destination="@id/recipesCategory" />
     </fragment>
     <fragment
         android:id="@+id/favoriteMeals"
         android:name="com.example.recipes.Fragments.FavoriteMeals"
         android:label="fragment_favorite_meals"
-        tools:layout="@layout/fragment_favorite_meals" />
+        tools:layout="@layout/fragment_favorite_meals" >
+        <action
+            android:id="@+id/action_favoriteMeals_to_meal"
+            app:destination="@id/meal" />
+    </fragment>
 </navigation>

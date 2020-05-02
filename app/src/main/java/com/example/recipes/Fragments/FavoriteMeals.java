@@ -1,35 +1,38 @@
 package com.example.recipes.Fragments;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavDirections;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.example.recipes.Adapters.MyAdapter;
+import com.example.recipes.Model.Meal;
 import com.example.recipes.R;
+import com.example.recipes.Utils.DatabaseHelper;
 
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link FavoriteMeals.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link FavoriteMeals#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class FavoriteMeals extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+import static android.content.ContentValues.TAG;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class FavoriteMeals extends Fragment implements MyAdapter.OnMealListener{
+
+     DatabaseHelper databaseHelper;
+    RecyclerView recyclerView;
+    List<Meal > favRecipes;
+    MyAdapter myAdapter;
 
     private OnFragmentInteractionListener mListener;
 
@@ -37,20 +40,9 @@ public class FavoriteMeals extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment FavoriteMeals.
-     */
-    // TODO: Rename and change types and number of parameters
     public static FavoriteMeals newInstance(String param1, String param2) {
         FavoriteMeals fragment = new FavoriteMeals();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -58,24 +50,44 @@ public class FavoriteMeals extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_favorite_meals, container, false);
+        View myView=inflater.inflate(R.layout.fragment_favorite_meals, container, false);
+        databaseHelper=new DatabaseHelper(this.getContext());
+
+        getFavorites(myView);
+
+        return myView;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+    public void getFavorites(View myView){
+
+        Cursor cursorGetId=databaseHelper.getAllFavorites();
+        List <String> favsId=new ArrayList<>();
+        cursorGetId.moveToFirst();
+        for (int i = 0; i < cursorGetId.getCount(); i++) {
+            favsId.add(cursorGetId.getString(0));
+            cursorGetId.moveToNext();
         }
+
+        favRecipes=new ArrayList<>();
+        for (String mealId:favsId) {
+            Cursor cursorGetRecipe=databaseHelper.getMealById(mealId);
+            cursorGetRecipe.moveToFirst();
+            favRecipes.add(new Meal(cursorGetRecipe.getString(1),cursorGetRecipe.getString(2),cursorGetRecipe.getString(3),cursorGetRecipe.getString(4)));
+        }
+
+        recyclerView=myView.findViewById(R.id.favorites);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setClickable(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(),RecyclerView.VERTICAL,false));
+
+        myAdapter=new MyAdapter(favRecipes,this.getContext(),FavoriteMeals.this,R.layout.cell_favorites);
+        recyclerView.setAdapter(myAdapter);
+
     }
 
     @Override
@@ -95,16 +107,21 @@ public class FavoriteMeals extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
+    @Override
+    public void onMealClick(View myView, String mealId, int position) {
+        NavDirections action=FavoriteMealsDirections.actionFavoriteMealsToMeal(mealId);
+        Navigation.findNavController(myView).navigate(action);
+    }
+
+    @Override
+    public void onFavoriteClick(View myView, String mealId, int position) {
+        databaseHelper.removeFromFavorites(mealId);
+        Toast.makeText(myView.getContext(),"Recipe was removed from favorites",Toast.LENGTH_LONG).show();
+        favRecipes.remove(position);
+        myAdapter.notifyItemRemoved(position);
+
+    }
+
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
