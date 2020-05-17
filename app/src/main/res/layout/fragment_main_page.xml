@@ -15,46 +15,23 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
+            android:orientation="vertical">
 
-            <LinearLayout
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
+                android:layout_height="42dp"
+                app:cardCornerRadius="25dp"
+                android:layout_margin="10dp">
 
-                <androidx.cardview.widget.CardView
-                    android:layout_width="330dp"
-                    android:layout_height="42dp"
-                    app:cardCornerRadius="25dp"
-                    >
+                <AutoCompleteTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Search Recipes"
+                    android:background="#A4C2BCBC"
+                    android:id="@+id/searchAuto"
+                    android:paddingStart="10dp"/>
 
-                    <AutoCompleteTextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:hint="Search Recipes"
-                        android:background="#A4C2BCBC"
-                        android:id="@+id/searchAuto"
-                        android:paddingStart="10dp"
-                        >
-
-                    </AutoCompleteTextView>
-
-                </androidx.cardview.widget.CardView>
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:id="@+id/favoriteListBtn"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/full_heart"
-                    android:layout_marginTop="5dp"
-                    android:layout_weight="1"
-
-
-                    />
-            </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
 
             <RelativeLayout
@@ -93,7 +70,6 @@
                     android:layout_gravity="bottom"
                     android:layout_marginStart="25dp"
                     android:layout_marginBottom="20dp"
-                    android:text="Random Meal"
                     android:textColor="@color/cardview_light_background"
                     android:textSize="25dp"
                     android:textStyle="bold" />

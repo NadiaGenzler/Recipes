@@ -36,6 +36,8 @@ import com.example.recipes.Model.Meal;
 import com.example.recipes.Model.MealsObj;
 import com.example.recipes.R;
 import com.example.recipes.Utils.DatabaseHelper;
+import com.example.recipes.Utils.GlobalVariable;
+import com.example.recipes.Utils.NetworkConnection;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.squareup.picasso.Picasso;
@@ -69,7 +71,6 @@ public class MealFragment extends Fragment {
    // Set<String> favoriteMeals;
     private TableLayout ingredientsTable;
 
-    boolean favorite;
     private OnFragmentInteractionListener mListener;
 
     public MealFragment() {
@@ -91,6 +92,15 @@ public class MealFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
+        //Internet check
+        NetworkConnection networkConnection=new NetworkConnection(this.getContext(),getActivity());
+        if(networkConnection.getInternetStatus()){
+            Toast.makeText(this.getContext(), "Network is Availible", Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(this.getContext(), "Network is 0ff!!!!", Toast.LENGTH_SHORT).show();
+        }
+
+
         View myView=inflater.inflate(R.layout.fragment_meal, container, false);
         String mealId= MealFragmentArgs.fromBundle(getArguments()).getMealId();
         ingredientsTable=myView.findViewById(R.id.ingredientsTable);

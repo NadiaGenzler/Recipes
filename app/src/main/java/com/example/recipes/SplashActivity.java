@@ -1,26 +1,20 @@
 package com.example.recipes;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.Bundle;
-import android.os.Handler;
 
-import com.example.recipes.Adapters.MyAdapter;
-import com.example.recipes.Fragments.MainPage;
+import android.os.Bundle;
+
 import com.example.recipes.Model.Meal;
 import com.example.recipes.Model.MealsObj;
 import com.example.recipes.Utils.DatabaseHelper;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -29,17 +23,19 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class SplashActivity extends AppCompatActivity {
-    private static int TIME_OUT_SPLASH=2000;
+   // private static int TIME_OUT_SPLASH=2000;
+   // private static String imageUrl="https://images.pexels.com/photos/255501/pexels-photo-255501.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260";
 
     String [] categories={"Beef", "Breakfast", "Chicken","Dessert","Goat","Lamb",
             "Pasta","Pork","Seafood","Side","Starter","Vegan","Vegetarian","Miscellaneous"};
     MealsObj meals;
     DatabaseHelper db;
 
+    //ImageView openImageView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_splash);
+
 
         db=new DatabaseHelper(this);
        // db.deleteAllData();
@@ -51,14 +47,17 @@ public class SplashActivity extends AppCompatActivity {
             }
         }
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        },TIME_OUT_SPLASH);
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+//                startActivity(intent);
+//                finish();
+//            }
+//        },TIME_OUT_SPLASH);
+        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
 
     }
 

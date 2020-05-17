@@ -79,16 +79,16 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             super(itemView);
             this.onMealListener=onMealListener;
 
-            nameTV = itemView.findViewById(R.id.nameTv);
-            categoryTV = itemView.findViewById(R.id.categoryTv);
-            imageView=itemView.findViewById(R.id.mealImg);
+            this.nameTV = itemView.findViewById(R.id.nameTv);
+            this.categoryTV = itemView.findViewById(R.id.categoryTv);
+            this.imageView=itemView.findViewById(R.id.mealImg);
             itemView.setOnClickListener(this);
 
             if(cardLayout==R.layout.cell_favorites) {
-                removeFavsBtn = itemView.findViewById(R.id.removeBtn);
+                this.removeFavsBtn = itemView.findViewById(R.id.removeBtn);
                 removeFavsBtn.setOnClickListener(this);
             }else{
-                addFavsBtn=itemView.findViewById(R.id.favoriteBtn);
+                this.addFavsBtn=itemView.findViewById(R.id.favoriteBtn);
                 addFavsBtn.setOnClickListener(this);
             }
         }
@@ -97,7 +97,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         @Override
         public void onClick(View v) {
             if(v instanceof ImageView) {
-                onMealListener.onFavoriteClick(v, listOfMeals.get(getAdapterPosition()).idMeal, getAdapterPosition());
+                onMealListener.onAddOrRemoveClick(v, listOfMeals.get(getAdapterPosition()).idMeal, getAdapterPosition());
             }else{
                 onMealListener.onMealClick(v,listOfMeals.get(getAdapterPosition()).idMeal, getAdapterPosition());
             }
@@ -106,6 +106,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
     public interface OnMealListener{
         void onMealClick(View v,String mealId,int position);
-        void onFavoriteClick(View v, String mealId, int position);
+        void onAddOrRemoveClick(View v, String mealId, int position);
     }
 }

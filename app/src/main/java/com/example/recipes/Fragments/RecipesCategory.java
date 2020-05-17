@@ -10,6 +10,7 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,8 @@ import com.example.recipes.Adapters.MyAdapter;
 import com.example.recipes.Model.Meal;
 import com.example.recipes.R;
 import com.example.recipes.Utils.DatabaseHelper;
+import com.example.recipes.Utils.GlobalVariable;
+import com.example.recipes.Utils.NetworkConnection;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -61,6 +64,15 @@ public class RecipesCategory extends Fragment implements MyAdapter.OnMealListene
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        //Internet check
+        NetworkConnection networkConnection=new NetworkConnection(this.getContext(),getActivity());
+        if(networkConnection.getInternetStatus()){
+            Toast.makeText(this.getContext(), "Network is Availible", Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(this.getContext(), "Network is 0ff!!!!", Toast.LENGTH_SHORT).show();
+        }
+
+
         View myView=inflater.inflate(R.layout.fragment_recipes_category, container, false);
         String currentCategory=RecipesCategoryArgs.fromBundle(getArguments()).getCtagoryName();
 
@@ -93,6 +105,7 @@ public class RecipesCategory extends Fragment implements MyAdapter.OnMealListene
         recyclerView.setClickable(true);
         //recyclerView.setNestedScrollingEnabled(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(),RecyclerView.VERTICAL,false));
+        //recyclerView.setLayoutManager(new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL));
         recyclerView.setAdapter(new MyAdapter(meals,this.getContext(),RecipesCategory.this,R.layout.cell_recipe_category));
 
         mealsCount=myView.findViewById(R.id.mealsCount);
@@ -153,7 +166,7 @@ public class RecipesCategory extends Fragment implements MyAdapter.OnMealListene
 
 
     @Override
-    public void onFavoriteClick(View myView, String mealId, int position) {
+    public void onAddOrRemoveClick(View myView, String mealId, int position) {
         favBtn=myView.findViewById(R.id.favoriteBtn);
         if(databaseHelper.isFavorite(mealId)){
             databaseHelper.removeFromFavorites(mealId);

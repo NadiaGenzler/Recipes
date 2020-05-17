@@ -16,26 +16,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="true"
-            android:focusableInTouchMode="true"
             android:minHeight="?attr/actionBarSize"
-            android:focusable="true">
+            android:background="@color/lightCherry">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:paddingEnd="10dp">
+                android:padding="5dp">
 
                 <TextView
-                    android:layout_width="280dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/currentMealName"
-                    android:padding="5dp"
-                    android:text="Name of the Meal"
                     android:textSize="25dp"
                     android:textStyle="italic"
                     android:textColor="@color/black"
-
+                    android:layout_alignParentStart="true"
+                    android:layout_toLeftOf="@id/favoriteBtn"
                     />
 
                 <ImageView
@@ -44,10 +41,12 @@
                     android:id="@+id/favoriteBtn"
                     android:scaleType="centerInside"
                     android:src="@drawable/empty_heart"
-                    android:layout_marginTop="5dp"
+                    android:layout_margin="5dp"
+
+                    android:layout_alignParentRight="true"
                     />
 
-            </LinearLayout>
+            </RelativeLayout>
 
 
         </androidx.appcompat.widget.Toolbar>
@@ -93,7 +92,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingEnd="5dp"
-                    android:text="Category name"
                     android:textSize="20dp"
                     android:id="@+id/categoryName"
                     android:textAlignment="textEnd"
@@ -102,8 +100,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingStart="5dp"
-                    android:text="Ingredients"
                     android:textSize="30dp"
+                    android:text="Ingredients"
                     android:textStyle="italic"
                     android:textColor="@color/black"/>
                 <TableLayout
@@ -116,8 +114,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingStart="5dp"
-                    android:text="Instructions"
                     android:textSize="30dp"
+                    android:text="Instructions"
                     android:textStyle="italic"
                     android:textColor="@color/black"/>
                 <TextView
@@ -125,8 +123,6 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/instructions"
                     android:padding="10dp"
-                    android:text="The purpose of lorem ipsum is to create a natural looking block of text (sentence, paragraph, page, etc.) that doesn't distract from the layout. A practice not without controversy, laying out pages with meaningless filler text can be very useful when the focus is meant to be on design, not content.
-The passage experienced a surge in popularity during the 1960s when Letraset used it on their dry-transfer sheets, and again during the 90s as desktop publishers bundled the text with their software. Today it's seen all around the web; on templates, websites, and stock designs. Use our generator to get your own, or read on for the authoritative history of lorem ipsum."
                     android:textSize="22dp" />
 
 

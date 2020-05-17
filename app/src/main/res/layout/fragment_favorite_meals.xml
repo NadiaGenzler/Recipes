@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorPrimaryDark"
     tools:context=".Fragments.FavoriteMeals">
 
    <androidx.recyclerview.widget.RecyclerView
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
-       android:id="@+id/favorites">
+       android:id="@+id/favorites"
+       android:background="@color/colorTransparent"/>
 
+   <TextView
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:id="@+id/noRecipesMessage"
+       android:layout_centerHorizontal="true"
+       android:layout_centerVertical="true"
+       android:textStyle="italic"
+       android:textSize="26dp"
+       android:text="@string/no_favorites"
+       android:visibility="invisible"/>
 
-   </androidx.recyclerview.widget.RecyclerView>
-
-</FrameLayout>
+</RelativeLayout>

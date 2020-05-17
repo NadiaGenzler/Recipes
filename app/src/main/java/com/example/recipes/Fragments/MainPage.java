@@ -30,6 +30,8 @@ import com.example.recipes.Model.MealsObj;
 import com.example.recipes.Adapters.MyAdapter;
 import com.example.recipes.R;
 import com.example.recipes.Utils.DatabaseHelper;
+import com.example.recipes.Utils.GlobalVariable;
+import com.example.recipes.Utils.NetworkConnection;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.squareup.picasso.Picasso;
@@ -97,8 +99,30 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        //Internet check
+        NetworkConnection networkConnection=new NetworkConnection(this.getContext(),getActivity());
+        if(networkConnection.getInternetStatus()){
+            Toast.makeText(this.getContext(), "Network is Availible", Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(this.getContext(), "Network is 0ff!!!!", Toast.LENGTH_SHORT).show();
+        }
+
+//        if(GlobalVariable.isNetworkConnected){
+//            Toast.makeText(this.getContext(), "Network is Availible", Toast.LENGTH_SHORT).show();
+//
+//        }else {
+//            networkConnection.showNoInternetDialog();
+//            Toast.makeText(this.getContext(), "Network is 0ff!!!!", Toast.LENGTH_SHORT).show();
+//
+//        }
+
+
+
         final View myView=inflater.inflate(R.layout.fragment_main_page, container, false);
         databaseHelper =new DatabaseHelper(this.getContext());
+
+
 
 //        Cursor cursorGetId=databaseHelper.getAllFavorites();
 //        List <String> favsId=new ArrayList<>();
@@ -114,7 +138,7 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
         searchResult(myView);
         search.clearFocus();
         //Go to favorites
-        favList(myView);
+        //favList(myView);
 
         //Handle the Random Meal
         randomMealTV=myView.findViewById(R.id.randomMeal);
@@ -209,11 +233,12 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
             int randomCaregory=r.nextInt(categories.length);
 
             Cursor cursor= databaseHelper.getMealsFromCategory(categories[randomCaregory]);
-
+            int numOfMeals;
             switch (i){
                 case 0:
                     cursor.moveToFirst();
-                    for(int j = 0; j <cursor.getCount(); j++){
+                    numOfMeals=cursor.getCount()<7?cursor.getCount():7;
+                    for(int j = 0; j <numOfMeals; j++){
                         meals0.add(new Meal(cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4)));
                         cursor.moveToNext();
                     }
@@ -223,7 +248,8 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
                     break;
                 case 1:
                     cursor.moveToFirst();
-                    for(int j = 0; j <cursor.getCount(); j++){
+                    numOfMeals=cursor.getCount()<7?cursor.getCount():7;
+                    for(int j = 0; j <numOfMeals; j++){
                         meals1.add(new Meal(cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4)));
                         cursor.moveToNext();
                     }
@@ -233,7 +259,8 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
                     break;
                 case 2:
                     cursor.moveToFirst();
-                    for(int j = 0; j <cursor.getCount(); j++){
+                    numOfMeals=cursor.getCount()<7?cursor.getCount():7;
+                    for(int j = 0; j <numOfMeals; j++){
                         meals2.add(new Meal(cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4)));
                         cursor.moveToNext();
                     }
@@ -303,15 +330,15 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     }
 
     //Go to favorite list
-    public void favList(final View myView){
-        myView.findViewById(R.id.favoriteListBtn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                NavDirections action=MainPageDirections.actionMainPageToFavoriteMeals();
-                Navigation.findNavController(myView).navigate(action);
-            }
-        });
-    }
+//    public void favList(final View myView){
+//        myView.findViewById(R.id.favoriteListBtn).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                NavDirections action=MainPageDirections.actionMainPageToFavoriteMeals();
+//                Navigation.findNavController(myView).navigate(action);
+//            }
+//        });
+//    }
 
 //    public void showIfFavorite(View cardView,String mealId){
 //        favBtn=cardView.findViewById(R.id.favoriteBtn);
@@ -335,7 +362,7 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     }
 
     @Override
-    public void onFavoriteClick(View myView, String mealId, int position) {
+    public void onAddOrRemoveClick(View myView, String mealId, int position) {
         favBtn=myView.findViewById(R.id.favoriteBtn);
         if(databaseHelper.isFavorite(mealId)){
             databaseHelper.removeFromFavorites(mealId);

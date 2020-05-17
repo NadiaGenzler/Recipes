@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorPrimary">#E4ABB3</color>
+    <color name="colorPrimaryDark">#CDC76170</color>
+
     <color name="colorAccent">#D81B60</color>
     <color name="white">#FDFDFD</color>
     <color name="black">#000000</color>
     <color name="gray">#666464</color>
-    <color name="lightGray">#79E4E0E0</color>
-    <color name="pitch">#F59E75</color>
+    <color name="darkCherry">#753841</color>
+    <color name="lightCherry">#E4ABB3</color>
+
+    <color name="colorTransparent">#00FFFFFF</color>
 
 </resources>

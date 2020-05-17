@@ -1,7 +1,9 @@
 <resources>
     <string name="app_name">Recipes</string>
+    <string name="open_screen">Fun Food Recipes</string>
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="no_favorites">No recipes saved...</string>
+    <string name="alertDeleteMessage">Remove recipe from favorites?</string>
 
 
     <string-array name="CategoryPics">
