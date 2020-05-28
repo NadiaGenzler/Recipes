@@ -30,7 +30,7 @@ public class Meal implements Serializable {
 
    }
    public String[] addIngredients(){
-      ingredientsArr=new String[] {this.strIngredient1,this.strIngredient2,strIngredient3,strIngredient4,strIngredient5,strIngredient6,strIngredient7,strIngredient8,strIngredient9,strIngredient10,
+      ingredientsArr=new String[] {strIngredient1,strIngredient2,strIngredient3,strIngredient4,strIngredient5,strIngredient6,strIngredient7,strIngredient8,strIngredient9,strIngredient10,
               strIngredient11,strIngredient12,strIngredient13,strIngredient14,strIngredient15,strIngredient16,strIngredient17,strIngredient18,strIngredient19,strIngredient20};
       return ingredientsArr;
    }

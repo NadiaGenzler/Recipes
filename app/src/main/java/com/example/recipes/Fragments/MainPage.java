@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -30,7 +31,6 @@ import com.example.recipes.Model.MealsObj;
 import com.example.recipes.Adapters.MyAdapter;
 import com.example.recipes.R;
 import com.example.recipes.Utils.DatabaseHelper;
-import com.example.recipes.Utils.GlobalVariable;
 import com.example.recipes.Utils.NetworkConnection;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -39,8 +39,10 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Call;
@@ -57,25 +59,26 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     ArrayList allMealsName;
     HashMap <String,String > mealsNameIdDictionary;
     TextView name;
+
     //Top random meal
     Meal randomMeal;
     TextView randomMealTV;
     ImageView randomMealImage;
     String randomMealId;
 
-    //Other recipes
+    //3 categories with meals
     String [] categories={"Beef","Breakfast","Chicken","Dessert","Lamb","Pasta","Pork","Seafood","Side","Starter","Vegan","Vegetarian","Miscellaneous"};
-    RecyclerView recyclerView0,recyclerView1,recyclerView2;
+    RecyclerView recyclerView;
     MyAdapter myAdapter;
     ImageView favBtn;
 
-    MealsObj meals;
+    MealsObj meal;
     List<Meal> meals0,meals1,meals2;
-
     TextView categoryNameTV;
-    int count;
 
     DatabaseHelper databaseHelper;
+
+
 
     private OnFragmentInteractionListener mListener;
 
@@ -102,48 +105,23 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
 
         //Internet check
         NetworkConnection networkConnection=new NetworkConnection(this.getContext(),getActivity());
-        if(networkConnection.getInternetStatus()){
-            Toast.makeText(this.getContext(), "Network is Availible", Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(this.getContext(), "Network is 0ff!!!!", Toast.LENGTH_SHORT).show();
-        }
+        networkConnection.getInternetStatus();
 
-//        if(GlobalVariable.isNetworkConnected){
-//            Toast.makeText(this.getContext(), "Network is Availible", Toast.LENGTH_SHORT).show();
-//
-//        }else {
-//            networkConnection.showNoInternetDialog();
-//            Toast.makeText(this.getContext(), "Network is 0ff!!!!", Toast.LENGTH_SHORT).show();
-//
-//        }
-
-
-
+        //Inflate fragment view
         final View myView=inflater.inflate(R.layout.fragment_main_page, container, false);
         databaseHelper =new DatabaseHelper(this.getContext());
 
-
-
-//        Cursor cursorGetId=databaseHelper.getAllFavorites();
-//        List <String> favsId=new ArrayList<>();
-//        cursorGetId.moveToFirst();
-//        for (int i = 0; i < cursorGetId.getCount(); i++) {
-//            favsId.add(cursorGetId.getString(0));
-//            cursorGetId.moveToNext();
-//        }
-//        Log.e(TAG, " "+favsId );
 
         //Search Recipes
         searchDropdown(myView);
         searchResult(myView);
         search.clearFocus();
-        //Go to favorites
-        //favList(myView);
 
-        //Handle the Random Meal
+
+        //Show Random Main Meal
         randomMealTV=myView.findViewById(R.id.randomMeal);
         randomMealImage=myView.findViewById(R.id.randomMealImage);
-        getRandomMealFromUrl(this.getContext(),myView);
+        getRandomMealFromUrl(this.getContext());
         randomMealImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -152,22 +130,15 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
             Navigation.findNavController(v).navigate(action);}
         });
 
-        //Handle the meals
-        count=0;
-        instantiateRecyclerView(myView);
-        meals0=new ArrayList<>();
-        meals1=new ArrayList<>();
-        meals2=new ArrayList<>();
+
+        //Show 3 categories with max 7 meals each
         showTheMealsInRecyclerViews(myView);
-
-
-
 
         return myView;
     }
 
     //Get the Random Meal From URL
-    public void getRandomMealFromUrl(final Context context, final View myView){
+    public void getRandomMealFromUrl(final Context context){
         String url="https://www.themealdb.com/api/json/v1/1/random.php";
         final OkHttpClient client=new OkHttpClient();
         Request request=new Request.Builder().url(url).build();
@@ -185,8 +156,8 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
                     GsonBuilder gsonBuilder=new GsonBuilder();
                     Gson gson=gsonBuilder.create();
 
-                    meals=gson.fromJson(serverResponse,MealsObj.class);
-                    randomMeal=meals.meals.get(0);
+                    meal=gson.fromJson(serverResponse,MealsObj.class);
+                    randomMeal=meal.meals.get(0);
 
                     ((MainActivity) context).runOnUiThread(new Runnable() {
                         @Override
@@ -205,79 +176,77 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
 
     }
 
-    //Handle the meals
-    public void instantiateRecyclerView(View myView){
-        recyclerView0=myView.findViewById(R.id.categoryPics0);
-        recyclerView0.setHasFixedSize(true);
-        recyclerView0.setClickable(true);
+    //Generate 3 random numbers in order to display 3 random categories
+    Integer [] threeRandomNumsArray=new Integer [3];
+    public void generateRandomNums(){
+        Random r=new Random();
+        Set<Integer> threeRandomNumsSet=new HashSet<>();
 
-
-        recyclerView1=myView.findViewById(R.id.categoryPics1);
-        recyclerView1.setHasFixedSize(true);
-        recyclerView1.setClickable(true);
-
-        recyclerView2=myView.findViewById(R.id.categoryPics2);
-        recyclerView2.setHasFixedSize(true);
-        recyclerView2.setClickable(true);
+        while (threeRandomNumsSet.size()<=3){
+            int randomNum=r.nextInt(categories.length);
+            threeRandomNumsSet.add(randomNum);
+        }
+        threeRandomNumsArray = threeRandomNumsSet.toArray(threeRandomNumsArray);
     }
+
+    //Display 3 recycler views with categories
     public void showTheMealsInRecyclerViews(View myView){
-        /////////////////////////////////////////////Solve the problem of repeating nums
 
+        generateRandomNums();//To display 3 different categories each time
 
+        meals0=new ArrayList<>();
+        meals1=new ArrayList<>();
+        meals2=new ArrayList<>();
 
         for (int i = 0; i < 3; i++) {
             String categoryNameIdStr="categoryName"+i;
             String categoryButtonIdStr="categoryButton"+i;
+            String recyclerViewIdStr="mealPics"+i;
 
-            Random r=new Random();
-            int randomCaregory=r.nextInt(categories.length);
+            recyclerView=myView.findViewById(getResources().getIdentifier(recyclerViewIdStr,"id",this.getContext().getPackageName()));
+            recyclerView.setClickable(true);
 
-            Cursor cursor= databaseHelper.getMealsFromCategory(categories[randomCaregory]);
+            int randomCategory=threeRandomNumsArray[i];
+            Cursor cursor= databaseHelper.getMealsFromCategory(categories[randomCategory]);
+            cursor.moveToFirst();
             int numOfMeals;
             switch (i){
                 case 0:
-                    cursor.moveToFirst();
-                    numOfMeals=cursor.getCount()<7?cursor.getCount():7;
+                    numOfMeals=cursor.getCount()<7?cursor.getCount():7;//Display max 7 meals
                     for(int j = 0; j <numOfMeals; j++){
                         meals0.add(new Meal(cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4)));
                         cursor.moveToNext();
                     }
                     myAdapter=new MyAdapter(meals0,this.getContext(),MainPage.this,R.layout.cell_main_page);
-                    recyclerView0.setLayoutManager(new LinearLayoutManager(this.getContext(), RecyclerView.HORIZONTAL, false));
-                    recyclerView0.setAdapter(myAdapter);
                     break;
                 case 1:
-                    cursor.moveToFirst();
                     numOfMeals=cursor.getCount()<7?cursor.getCount():7;
                     for(int j = 0; j <numOfMeals; j++){
                         meals1.add(new Meal(cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4)));
                         cursor.moveToNext();
                     }
                     myAdapter=new MyAdapter(meals1,this.getContext(),MainPage.this,R.layout.cell_main_page);
-                    recyclerView1.setLayoutManager(new LinearLayoutManager(this.getContext(), RecyclerView.HORIZONTAL, false));
-                    recyclerView1.setAdapter(myAdapter);
                     break;
                 case 2:
-                    cursor.moveToFirst();
                     numOfMeals=cursor.getCount()<7?cursor.getCount():7;
                     for(int j = 0; j <numOfMeals; j++){
                         meals2.add(new Meal(cursor.getString(1),cursor.getString(2),cursor.getString(3),cursor.getString(4)));
                         cursor.moveToNext();
                     }
                     myAdapter=new MyAdapter(meals2,this.getContext(),MainPage.this,R.layout.cell_main_page);
-                    recyclerView2.setLayoutManager(new LinearLayoutManager(this.getContext(), RecyclerView.HORIZONTAL, false));
-                    recyclerView2.setAdapter(myAdapter);
                     break;
             }
 
-//            List<Meal> sevenMeals=new ArrayList<>();
-//            for (int i = 0; i < 7; i++) {
-//                sevenMeals.add(meals.meals.get(i));
-//            }
-            categoryNameTV=myView.findViewById(getResources().getIdentifier(categoryNameIdStr,"id",this.getContext().getPackageName()));
-            categoryNameTV.setText(categories[randomCaregory]);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(), RecyclerView.HORIZONTAL, false));
+            recyclerView.setAdapter(myAdapter);
 
-            final int finalI = randomCaregory;
+
+            //Name of Category
+            categoryNameTV=myView.findViewById(getResources().getIdentifier(categoryNameIdStr,"id",this.getContext().getPackageName()));
+            categoryNameTV.setText(categories[randomCategory]);
+
+            //View more of Category Button
+            final int finalI = randomCategory;
             myView.findViewById(getResources().getIdentifier(categoryButtonIdStr,"id",this.getContext().getPackageName()))
                     .setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -289,6 +258,7 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
         }
 
     }
+
 
     //Search Recipes
     public void searchDropdown(View myView){
@@ -307,6 +277,7 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
         ArrayAdapter adapter=new ArrayAdapter(getContext(),R.layout.cell_drop_down,allMealsName);
         search.setAdapter(adapter);
     }
+
     public void searchResult(final View myView){
         search.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -314,7 +285,6 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
                 name=view.findViewById(R.id.text1);
                 String mealName=name.getText().toString();
                 String mealId=mealsNameIdDictionary.get(mealName);
-                // Log.e(TAG, "onItemClick: "+mealName+mealId+"");
 
                 hideKeyboardFrom(getContext(),myView);
 
@@ -329,36 +299,28 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
-    //Go to favorite list
-//    public void favList(final View myView){
-//        myView.findViewById(R.id.favoriteListBtn).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                NavDirections action=MainPageDirections.actionMainPageToFavoriteMeals();
-//                Navigation.findNavController(myView).navigate(action);
-//            }
-//        });
-//    }
 
-//    public void showIfFavorite(View cardView,String mealId){
-//        favBtn=cardView.findViewById(R.id.favoriteBtn);
-//        if(databaseHelper.isFavorite(mealId)){
-//            favBtn.setImageResource(R.drawable.full_heart);
-//        }else {
-//            favBtn.setImageResource(R.drawable.empty_heart);
-//        }
-//    }
     @Override
     public void onResume() {
         super.onResume();
         search.setText("");
+        NetworkConnection networkConnection=new NetworkConnection(this.getContext(),getActivity());
+        networkConnection.getInternetStatus();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+    }
+
+    //Interfaces from MyAdapter
     @Override
     public void onMealClick(View myView,String mealId,int position) {
         hideKeyboardFrom(getContext(),myView);
         NavDirections action = MainPageDirections.actionMainPageToMeal(mealId);
         Navigation.findNavController(myView).navigate(action);
+      //  Navigation.setViewNavController(myView,new NavController(myView.getContext())).;
     }
 
     @Override
@@ -377,13 +339,7 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
     }
 
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
+    //Fragment Methods
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -401,24 +357,9 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
-
-
-
-
 
 
 

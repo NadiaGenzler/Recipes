@@ -49,7 +49,7 @@ public class NetworkConnection {
         dialog1.setContentView(R.layout.no_network_layout);
         dialog1.setCancelable(true);
         dialog1.setCanceledOnTouchOutside(true);
-        dialog1.findViewById(R.id.btnSpinAndWinRedeem).setOnClickListener(new View.OnClickListener() {
+        dialog1.findViewById(R.id.tryAgainBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -58,6 +58,8 @@ public class NetworkConnection {
 
             }
         });
+
         dialog1.show();
+
     }
 }

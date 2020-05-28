@@ -4,8 +4,8 @@
         android:drawable="@color/white"/>
     <item>
         <bitmap
-            android:gravity="fill"
-            android:alpha="0.8"
+            android:gravity="start"
+            android:alpha="0.9"
             android:src="@drawable/open_screen_image"/>
 
     </item>

@@ -30,14 +30,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Internet check
-//        NetworkConnection networkConnection=new NetworkConnection(getApplicationContext(),this);
-//        networkConnection.getInternetStatus();
-//        if(networkConnection.getInternetStatus()){
-//            Toast.makeText(getApplicationContext(), "Network is Availible", Toast.LENGTH_SHORT).show();
-//        }else{
-//            Toast.makeText(getApplicationContext(), "Network is 0ff!!!!", Toast.LENGTH_SHORT).show();
-//        }
         bottomNavigationView=findViewById(R.id.bottom_nav_menu);
 
         NavHostFragment navHostFragment= (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
@@ -57,4 +49,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         return false;
     }
-}
+
+    @Override
+    public void onBackPressed() {
+
+        }
+    }
+
+

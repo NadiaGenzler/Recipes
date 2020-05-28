@@ -1,27 +1,19 @@
 package com.example.recipes.Fragments;
 
-import android.app.Activity;
 import android.content.Context;
 
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
-import androidx.preference.PreferenceManager;
 
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.graphics.Path;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
-import android.text.Layout;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -30,34 +22,23 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.recipes.Fragments.MealFragmentArgs;
 import com.example.recipes.MainActivity;
 import com.example.recipes.Model.Meal;
 import com.example.recipes.Model.MealsObj;
 import com.example.recipes.R;
 import com.example.recipes.Utils.DatabaseHelper;
-import com.example.recipes.Utils.GlobalVariable;
 import com.example.recipes.Utils.NetworkConnection;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.prefs.Preferences;
-import java.util.prefs.PreferencesFactory;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import static android.content.ContentValues.TAG;
 
 
 public class MealFragment extends Fragment {
@@ -94,11 +75,7 @@ public class MealFragment extends Fragment {
                              Bundle savedInstanceState) {
         //Internet check
         NetworkConnection networkConnection=new NetworkConnection(this.getContext(),getActivity());
-        if(networkConnection.getInternetStatus()){
-            Toast.makeText(this.getContext(), "Network is Availible", Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(this.getContext(), "Network is 0ff!!!!", Toast.LENGTH_SHORT).show();
-        }
+        networkConnection.getInternetStatus();
 
 
         View myView=inflater.inflate(R.layout.fragment_meal, container, false);
@@ -118,8 +95,6 @@ public class MealFragment extends Fragment {
         }else {
             favBtn.setImageResource(R.drawable.empty_heart);
         }
-
-
 
 
         return myView;
@@ -173,46 +148,51 @@ public class MealFragment extends Fragment {
                     meals = gson.fromJson(serverResponse, MealsObj.class);
                     currentMeal=meals.meals.get(0);
 
+
                     ((MainActivity) getContext()).runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
 
-                            mealName=myView.findViewById(R.id.currentMealName);
-                            mealName.setText(currentMeal.strMeal);
-                            mealImage=myView.findViewById(R.id.currentMealImage);
-                            Picasso.with(context).load(currentMeal.strMealThumb).into(mealImage);
+                        mealName=myView.findViewById(R.id.currentMealName);
+                        mealName.setText(currentMeal.strMeal);
+                        mealImage=myView.findViewById(R.id.currentMealImage);
+                        Picasso.with(context).load(currentMeal.strMealThumb).into(mealImage);
 
-                            videoInstructions(myView);
+                        videoInstructions(myView);
 
-                            currentMeal.addIngredients();
-                            currentMeal.addMeasurs();
-                            for (int i = 0; i < 20; i++) {
-                                if(!(currentMeal.ingredientsArr[i].trim()).isEmpty()||!(currentMeal.measuresArr[i].trim()).isEmpty()){
-                                    showIngredientsAndMeasures(context,i);
-                                }else {
-                                    break;
-                                }
+                        TextView ingredientsTv=myView.findViewById(R.id.ingredientsTV);
+                        ingredientsTv.setText("Ingredients");
+                        TextView instructionsTv=myView.findViewById(R.id.instructionsTV);
+                        instructionsTv.setText("Instructions");
+
+                        currentMeal.addIngredients();
+                        currentMeal.addMeasurs();
+                        for (int i = 0; i < 20; i++) {
+                            if(!(currentMeal.ingredientsArr[i].trim()).isEmpty()||!(currentMeal.measuresArr[i].trim()).isEmpty()){
+                                showIngredientsAndMeasures(context,i);// Load the ingredients and measures to the view
+                            }else {
+                                break;
                             }
-                            categoryName=myView.findViewById(R.id.categoryName);
-                            categoryName.setText("See more from "+currentMeal.strCategory+" category");
-                            categoryName.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    NavDirections action= MealFragmentDirections.actionMealToRecipesCategory(currentMeal.strCategory);
-                                    Navigation.findNavController(myView).navigate(action);
-                                }
-                            });
+                        }
 
-                            instructions=myView.findViewById(R.id.instructions);
-                            instructions.setText(currentMeal.strInstructions);
+                        instructions=myView.findViewById(R.id.instructions);
+                        instructions.setText(currentMeal.strInstructions);
 
+
+                        //Navigate to more recipes from current meal's category
+                        categoryName=myView.findViewById(R.id.categoryName);
+                        categoryName.setText("See more from "+currentMeal.strCategory+" category");
+                        categoryName.setTextColor(getResources().getColor(R.color.darkCherry));
+                        categoryName.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                NavDirections action= MealFragmentDirections.actionMealToRecipesCategory(currentMeal.strCategory);
+                                Navigation.findNavController(myView).navigate(action);
+                            }
+                        });
 
                         }
                     });
-
-                {
-                        //databaseHelper.insertData(categoryName, meal.idMeal, meal.strMeal, meal.strMealThumb);
-                    }
                 }
             }
         });
@@ -234,6 +214,7 @@ public class MealFragment extends Fragment {
         ingredient.setLayoutParams(new TableRow.LayoutParams(half,TableRow.LayoutParams.WRAP_CONTENT));
         ingredient.setTextSize(22);
         row.addView(ingredient,0);
+
         //Add Measures to the table
         TextView measure=new TextView(context);
         measure.setText(currentMeal.measuresArr[i].trim());
@@ -253,7 +234,7 @@ public class MealFragment extends Fragment {
         ingredientsTable.addView(line);
     }
 
-    // Load the video instructions if exists
+    // Add the video button if video instructions exist
     public void videoInstructions(View myView){
         final String url=currentMeal.strYoutube;
         toVideo=myView.findViewById(R.id.videoImageBtn);
@@ -269,12 +250,6 @@ public class MealFragment extends Fragment {
         }
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
     @Override
     public void onAttach(Context context) {

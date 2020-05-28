@@ -99,9 +99,9 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:id="@+id/ingredientsTV"
                     android:paddingStart="5dp"
                     android:textSize="30dp"
-                    android:text="Ingredients"
                     android:textStyle="italic"
                     android:textColor="@color/black"/>
                 <TableLayout
@@ -113,9 +113,9 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:id="@+id/instructionsTV"
                     android:paddingStart="5dp"
                     android:textSize="30dp"
-                    android:text="Instructions"
                     android:textStyle="italic"
                     android:textColor="@color/black"/>
                 <TextView

@@ -13,20 +13,13 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.LinearLayout;
-import android.widget.SimpleAdapter;
-import android.widget.Toast;
 
-import com.example.recipes.Adapters.MyAdapter;
 import com.example.recipes.Adapters.StaggeredCategoriesAdapter;
 import com.example.recipes.R;
-import com.example.recipes.Utils.GlobalVariable;
 import com.example.recipes.Utils.NetworkConnection;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 
@@ -41,12 +34,7 @@ public class AllCategories extends Fragment implements StaggeredCategoriesAdapte
     public AllCategories() {
         // Required empty public constructor
     }
-    public static AllCategories newInstance(String param1, String param2) {
-        AllCategories fragment = new AllCategories();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,11 +47,7 @@ public class AllCategories extends Fragment implements StaggeredCategoriesAdapte
                              Bundle savedInstanceState) {
         //Internet check
         NetworkConnection networkConnection=new NetworkConnection(this.getContext(),getActivity());
-        if(networkConnection.getInternetStatus()){
-            Toast.makeText(this.getContext(), "Network is Availible", Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(this.getContext(), "Network is 0ff!!!!", Toast.LENGTH_SHORT).show();
-        }
+        networkConnection.getInternetStatus();
 
         View myView=inflater.inflate(R.layout.fragment_all_categories, container, false);
 
@@ -113,7 +97,7 @@ public class AllCategories extends Fragment implements StaggeredCategoriesAdapte
 
     }
 
-
+    //Interface from Categories Adapters
     @Override
     public void onCategoryClick(View view, String name, int position) {
         NavDirections action=AllCategoriesDirections.actionAllCategoriesToRecipesCategory(name);

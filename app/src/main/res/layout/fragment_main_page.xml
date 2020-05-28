@@ -114,7 +114,7 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:id="@+id/categoryPics0"
+                    android:id="@+id/mealPics0"
                     />
 
             </LinearLayout>
@@ -160,7 +160,7 @@
                     </LinearLayout>
 
                     <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/categoryPics1"
+                        android:id="@+id/mealPics1"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
 
@@ -208,7 +208,7 @@
                     </LinearLayout>
 
                     <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/categoryPics2"
+                        android:id="@+id/mealPics2"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
 

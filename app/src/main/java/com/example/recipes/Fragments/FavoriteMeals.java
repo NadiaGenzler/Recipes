@@ -13,7 +13,6 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,13 +23,10 @@ import com.example.recipes.Adapters.MyAdapter;
 import com.example.recipes.Model.Meal;
 import com.example.recipes.R;
 import com.example.recipes.Utils.DatabaseHelper;
-import com.example.recipes.Utils.GlobalVariable;
 import com.example.recipes.Utils.NetworkConnection;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.content.ContentValues.TAG;
 
 public class FavoriteMeals extends Fragment implements MyAdapter.OnMealListener{
 
@@ -39,6 +35,7 @@ public class FavoriteMeals extends Fragment implements MyAdapter.OnMealListener{
     List<Meal> favRecipes;
     MyAdapter myAdapter;
     TextView message;
+    View myMainView;
     private OnFragmentInteractionListener mListener;
 
     public FavoriteMeals() {
@@ -62,22 +59,18 @@ public class FavoriteMeals extends Fragment implements MyAdapter.OnMealListener{
                              Bundle savedInstanceState) {
         //Internet check
         NetworkConnection networkConnection=new NetworkConnection(this.getContext(),getActivity());
-        if(networkConnection.getInternetStatus()){
-            Toast.makeText(this.getContext(), "Network is Available", Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(this.getContext(), "Network is Off!!!!", Toast.LENGTH_SHORT).show();
-        }
+        networkConnection.getInternetStatus();
 
 
-        View myView=inflater.inflate(R.layout.fragment_favorite_meals, container, false);
+        myMainView=inflater.inflate(R.layout.fragment_favorite_meals, container, false);
         databaseHelper=new DatabaseHelper(this.getContext());
 
-        getFavorites(myView);
+        getFavorites(myMainView);
 
-        return myView;
+        return myMainView;
     }
 
-    public void getFavorites(View myView){
+    public void getFavorites(View myMainView){
 
         Cursor cursorGetId=databaseHelper.getAllFavorites();
         List <String> favsId=new ArrayList<>();
@@ -94,11 +87,11 @@ public class FavoriteMeals extends Fragment implements MyAdapter.OnMealListener{
             favRecipes.add(new Meal(cursorGetRecipe.getString(1),cursorGetRecipe.getString(2),cursorGetRecipe.getString(3),cursorGetRecipe.getString(4)));
         }
         if(favRecipes.size()==0){
-            message=myView.findViewById(R.id.noRecipesMessage);
+            message=myMainView.findViewById(R.id.noRecipesMessage);
             message.setVisibility(TextView.VISIBLE);
         }
 
-        recyclerView=myView.findViewById(R.id.favorites);
+        recyclerView=myMainView.findViewById(R.id.favorites);
         recyclerView.setHasFixedSize(true);
         recyclerView.setClickable(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext(),RecyclerView.VERTICAL,false));
@@ -107,23 +100,13 @@ public class FavoriteMeals extends Fragment implements MyAdapter.OnMealListener{
         recyclerView.setAdapter(myAdapter);
 
     }
-
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
+    public void onStart() {
+        super.onStart();
+        NetworkConnection networkConnection=new NetworkConnection(this.getContext(),getActivity());
+        networkConnection.getInternetStatus();
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
 
     @Override
     public void onMealClick(View myView, String mealId, int position) {
@@ -150,9 +133,10 @@ public class FavoriteMeals extends Fragment implements MyAdapter.OnMealListener{
                 myAdapter.notifyItemRemoved(position);
 
                 if(favRecipes.size()==0){
-                    message=myView.findViewById(R.id.noRecipesMessage);
+                    message=myMainView.findViewById(R.id.noRecipesMessage);
                     message.setVisibility(TextView.VISIBLE);
                 }
+
             }
         });
         builder.setNegativeButton("Cancle", new DialogInterface.OnClickListener() {
@@ -162,6 +146,24 @@ public class FavoriteMeals extends Fragment implements MyAdapter.OnMealListener{
             }
         });
         builder.create().show();
+    }
+
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
     }
 
     public interface OnFragmentInteractionListener {

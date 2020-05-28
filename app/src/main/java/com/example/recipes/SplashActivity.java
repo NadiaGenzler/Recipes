@@ -23,38 +23,26 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class SplashActivity extends AppCompatActivity {
-   // private static int TIME_OUT_SPLASH=2000;
-   // private static String imageUrl="https://images.pexels.com/photos/255501/pexels-photo-255501.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260";
 
     String [] categories={"Beef", "Breakfast", "Chicken","Dessert","Goat","Lamb",
             "Pasta","Pork","Seafood","Side","Starter","Vegan","Vegetarian","Miscellaneous"};
     MealsObj meals;
     DatabaseHelper db;
 
-    //ImageView openImageView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         db=new DatabaseHelper(this);
-       // db.deleteAllData();
 
         Cursor cursor = db.getAllMeals();
-        if (cursor.getCount() == 0){
-            for (int i = 0; i < categories.length; i++) {
+        if (cursor.getCount() == 0){//  inserts data to SQLite database on the first launch
+             for (int i = 0; i < categories.length; i++) {
                 getAllMeals(categories[i]);
             }
         }
 
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-//                startActivity(intent);
-//                finish();
-//            }
-//        },TIME_OUT_SPLASH);
         Intent intent = new Intent(SplashActivity.this, MainActivity.class);
         startActivity(intent);
         finish();

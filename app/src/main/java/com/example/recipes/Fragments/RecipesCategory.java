@@ -10,7 +10,6 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,13 +22,10 @@ import com.example.recipes.Adapters.MyAdapter;
 import com.example.recipes.Model.Meal;
 import com.example.recipes.R;
 import com.example.recipes.Utils.DatabaseHelper;
-import com.example.recipes.Utils.GlobalVariable;
 import com.example.recipes.Utils.NetworkConnection;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 
@@ -66,11 +62,7 @@ public class RecipesCategory extends Fragment implements MyAdapter.OnMealListene
                              Bundle savedInstanceState) {
         //Internet check
         NetworkConnection networkConnection=new NetworkConnection(this.getContext(),getActivity());
-        if(networkConnection.getInternetStatus()){
-            Toast.makeText(this.getContext(), "Network is Availible", Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(this.getContext(), "Network is 0ff!!!!", Toast.LENGTH_SHORT).show();
-        }
+        networkConnection.getInternetStatus();
 
 
         View myView=inflater.inflate(R.layout.fragment_recipes_category, container, false);
