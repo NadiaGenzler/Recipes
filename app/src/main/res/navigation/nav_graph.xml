@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/mainPage"
-        android:name="com.example.recipes.Fragments.MainPage"
+        android:name="com.nadia.recipes.Fragments.MainPage"
         android:label="fragment_main_page"
-        tools:layout="@layout/fragment_main_page" >
+        tools:layout="@layout/fragment_main_page">
         <action
             android:id="@+id/action_mainPage_to_meal"
             app:destination="@+id/meal" />
@@ -19,9 +19,9 @@
     </fragment>
     <fragment
         android:id="@+id/recipesCategory"
-        android:name="com.example.recipes.Fragments.RecipesCategory"
+        android:name="com.nadia.recipes.Fragments.RecipesCategory"
         android:label="fragment_recipes_category"
-        tools:layout="@layout/fragment_recipes_category" >
+        tools:layout="@layout/fragment_recipes_category">
         <argument
             android:name="ctagoryName"
             app:argType="string"
@@ -35,9 +35,9 @@
     </fragment>
     <fragment
         android:id="@+id/meal"
-        android:name="com.example.recipes.Fragments.MealFragment"
+        android:name="com.nadia.recipes.Fragments.MealFragment"
         android:label="fragment_meal"
-        tools:layout="@layout/fragment_meal" >
+        tools:layout="@layout/fragment_meal">
         <argument
             android:name="mealId"
             app:argType="string"
@@ -51,17 +51,18 @@
     </fragment>
     <fragment
         android:id="@+id/favoriteMeals"
-        android:name="com.example.recipes.Fragments.FavoriteMeals"
+        android:name="com.nadia.recipes.Fragments.FavoriteMeals"
         android:label="fragment_favorite_meals"
-        tools:layout="@layout/fragment_favorite_meals" >
+        tools:layout="@layout/fragment_favorite_meals">
         <action
             android:id="@+id/action_favoriteMeals_to_meal"
             app:destination="@id/meal" />
     </fragment>
     <fragment
         android:id="@+id/allCategoties"
-        android:name="com.example.recipes.Fragments.AllCategories"
-        android:label="fragment_all_categories">
+        android:name="com.nadia.recipes.Fragments.AllCategories"
+        android:label="fragment_all_categories"
+        tools:layout="@layout/fragment_all_categories">
         <action
             android:id="@+id/action_allCategories_to_recipesCategory"
             app:destination="@id/recipesCategory" />
