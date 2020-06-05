@@ -4,9 +4,9 @@
         android:drawable="@color/white"/>
     <item>
         <bitmap
-            android:gravity="start"
+            android:gravity="end"
             android:alpha="0.9"
-            android:src="@drawable/open_screen_image"/>
+            android:src="@drawable/open_screen_image2"/>
 
     </item>
 

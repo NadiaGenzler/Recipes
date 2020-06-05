@@ -204,7 +204,7 @@ public class MealFragment extends Fragment {
         TableRow row=new TableRow(context);
         TableLayout.LayoutParams tablelayoutParams=new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,TableLayout.LayoutParams.MATCH_PARENT);
         row.setLayoutParams(tablelayoutParams);
-        row.setPadding(0,0,0,5);
+        row.setPadding(0,5,0,20);
 
         int half= (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,180,context.getResources().getDisplayMetrics());
 

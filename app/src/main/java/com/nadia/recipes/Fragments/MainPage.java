@@ -320,7 +320,6 @@ public class MainPage extends Fragment implements MyAdapter.OnMealListener {
         hideKeyboardFrom(getContext(),myView);
         NavDirections action = MainPageDirections.actionMainPageToMeal(mealId);
         Navigation.findNavController(myView).navigate(action);
-      //  Navigation.setViewNavController(myView,new NavController(myView.getContext())).;
     }
 
     @Override

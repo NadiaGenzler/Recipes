@@ -11,7 +11,8 @@
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
        android:id="@+id/favorites"
-       android:background="@color/colorTransparent"/>
+       android:background="@color/colorTransparent"
+       android:paddingBottom="5dp"/>
 
    <TextView
        android:layout_width="wrap_content"

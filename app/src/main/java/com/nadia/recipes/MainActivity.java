@@ -47,10 +47,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return false;
     }
 
-    @Override
-    public void onBackPressed() {
-
-        }
     }
 
 

@@ -2,10 +2,12 @@ package com.nadia.recipes;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 
 import android.os.Bundle;
+import android.os.Handler;
 
 import com.nadia.recipes.Model.Meal;
 import com.nadia.recipes.Model.MealsObj;
@@ -41,6 +43,12 @@ public class SplashActivity extends AppCompatActivity {
              for (int i = 0; i < categories.length; i++) {
                 getAllMeals(categories[i]);
             }
+             new Handler().postDelayed(new Runnable() {
+                 @Override
+                 public void run() {
+
+                 }
+             }, 1000);
         }
 
         Intent intent = new Intent(SplashActivity.this, MainActivity.class);
@@ -68,12 +76,14 @@ public class SplashActivity extends AppCompatActivity {
 
                     GsonBuilder gsonBuilder = new GsonBuilder();
                     Gson gson = gsonBuilder.create();
-
                     meals = gson.fromJson(serverResponse, MealsObj.class);
+
                     for(Meal meal:meals.meals) {
                         db.insertData(categoryName, meal.idMeal, meal.strMeal, meal.strMealThumb);
                     }
+
                 }
+
             }
         });
     }
